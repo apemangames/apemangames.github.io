@@ -117,7 +117,7 @@
         .carousel-val { font-family: var(--font-main); font-size: 45px; color: white; min-width: 60px; text-align: center; }
 
         /* TEAMS VIEW */
-        .teams-split { display: flex; width: 100%; height: 100vh; position: absolute; top: 0; left: 0; z-index: -1; }
+        .teams-split { display: flex; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: -1; }
         .team-col { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 150px; }
         .team-col::after { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; height: 70%; background-size: contain; background-position: center; background-repeat: no-repeat; opacity: 1; z-index: 0; pointer-events: none; }
         .bg-blue { background: var(--color-blue-bg); } .bg-blue::after { background-image: url('images/Taboo Icons/9.png'); }
@@ -168,7 +168,7 @@
         #host-taboo-flash.active { opacity: 1; visibility: visible; }
 
         /* HOST: TURN OVER RECAP VIEW */
-        #view-host-turn-over { justify-content: center; }
+        #view-host-turn-over { justify-content: center; align-items: center; }
         .turn-over-box { border-radius: 30px; padding: 40px; text-align: center; max-width: 1100px; width: 100%; box-shadow: 0 15px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; transition: background 0.5s; }
         .turn-over-header { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 30px; }
         .turn-over-score { font-family: var(--font-main); font-size: 60px; color: white; background: var(--color-red-pill); padding: 20px 40px; border-radius: 20px; }
@@ -178,7 +178,7 @@
         .turn-over-cards-container { display: flex; gap: 20px; overflow-x: auto; padding: 20px 20px 40px 20px; width: 100%; margin-bottom: 10px; justify-content: flex-start; }
 
         /* HOST: WINNER SCREEN */
-        #view-host-winner { justify-content: center; }
+        #view-host-winner { justify-content: center; align-items: center; }
 
         /* PLAYER BUBBLES */
         .player-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 0 40px; margin-top: 10px; width: 100%;}
@@ -197,13 +197,7 @@
         #view-player-waiting h2 { font-family: var(--font-ui); font-size: 40px; color: var(--text-light); margin-bottom: 5px; text-align: center; }
         .status-text { font-family: var(--font-ui); color: #ddd; font-size: 20px; margin-bottom: 30px; letter-spacing: 0.5px; text-align: center; }
 
-        /* FIXED ICON GRID */
-        .icon-grid { 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 15px; width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; 
-            background: rgba(0,0,0,0.4); border-radius: 20px; 
-        }
+        .icon-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background: rgba(0,0,0,0.4); border-radius: 20px; }
         .icon-option { width: 100%; aspect-ratio: 1; background-color: rgba(0, 0, 0, 0.6); border-radius: 50%; cursor: pointer; transition: transform 0.2s, outline 0.2s; background-size: cover; background-position: center; position: relative; }
         .icon-option.no-icon { display: flex; justify-content: center; align-items: center; font-family: var(--font-ui); font-size: 14px; color: #aaa; text-align: center; }
         .icon-option.selected { outline: 4px solid #ff0055; transform: scale(1.1); background-color: rgba(255,0,85,0.4); }
@@ -217,33 +211,33 @@
         .btn-join-team.red { background-color: var(--color-red-pill); }
         #current-team-display { font-family: var(--font-ui); font-size: 22px; margin-bottom: 30px; color: #fff; text-align: center;}
 
-        /* PLAYER CLUE GIVER INTERFACE */
+        /* PLAYER CLUE GIVER INTERFACE (FIXED DIMENSIONS) */
         #view-player-clue-giver { padding: 20px 10px; height: 100%; display: flex; flex-direction: column; justify-content: flex-start; align-items: center;}
         
         .clue-card-ui { 
             background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 15px 30px rgba(0,0,0,0.6); 
-            width: 260px; height: 380px; display: flex; flex-direction: column; margin: 0 auto 30px auto; 
+            width: 260px; height: 380px; display: flex; flex-direction: column; margin: 0 auto 30px auto; flex-shrink: 0;
         }
         .clue-card-ui .header { background: linear-gradient(to bottom, #2b0b3f, #1a0b2e); padding: 15px; text-align: center; flex-shrink: 0; min-height: 90px; display: flex; align-items: center; justify-content: center;}
         .clue-card-ui .header h2 { font-family: var(--font-main); font-size: 32px; color: white; margin: 0; }
         .clue-card-ui .body { padding: 15px; text-align: center; display: flex; flex-direction: column; gap: 10px; flex: 1; justify-content: center;}
         .clue-card-ui .body p { font-family: var(--font-ui); font-size: 20px; color: #111; margin: 0; }
         
-        .action-buttons { display: flex; justify-content: center; gap: 40px; margin-top: auto; padding-bottom: 40px; width: 100%; max-width: 500px;}
+        .action-buttons { display: flex; justify-content: center; gap: 40px; margin-top: auto; padding-bottom: 20px; width: 100%; max-width: 500px;}
         .btn-action-game { width: 110px; height: 110px; border-radius: 50%; border: none; padding: 0; font-size: 55px; cursor: pointer; box-shadow: 0 8px 0 rgba(0,0,0,0.4); transition: transform 0.1s, opacity 0.2s; display: flex; justify-content: center; align-items: center; font-family: var(--font-ui);}
         .btn-action-game:active { transform: translateY(8px); box-shadow: 0 0 0 rgba(0,0,0,0.4); }
         .btn-action-game.correct { background-color: #00d26a; color: white; }
         .btn-action-game.skip { background-color: #ff9800; color: white; font-size: 50px; }
         
-        /* PLAYER OPPOSITE TEAM */
+        /* PLAYER OPPOSITE TEAM (TABOO BUTTON) */
         #view-player-opposite { display: flex; flex-direction: column; justify-content: center; height: 100%; padding-bottom: 50px;}
         .btn-taboo-call { background-color: #ff0055; color: white; border: none; border-radius: 50%; width: 260px; height: 260px; font-family: var(--font-main); font-size: 50px; box-shadow: 0 15px 0 #990033; margin: 0 auto; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s;}
         .btn-taboo-call:active { transform: translateY(15px); box-shadow: 0 0 0 #990033; }
 
-        /* MODAL */
+        /* MODAL: TABOO CONFIRM (Clue Giver) */
         #modal-taboo { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.2s;}
         #modal-taboo.active { opacity: 1; visibility: visible; }
-        .modal-box { background: white; border-radius: 20px; padding: 40px; text-align: center; width: 90%; max-width: 400px; }
+        .modal-box { background: white; border-radius: 20px; padding: 40px; text-align: center; max-width: 90%; }
         .modal-box h2 { font-family: var(--font-main); font-size: 45px; color: #ff0055; margin: 0 0 10px 0;}
         .modal-box p { font-family: var(--font-ui); font-size: 24px; color: #333; margin-bottom: 30px;}
         .modal-btns { display: flex; gap: 20px; }
@@ -251,7 +245,6 @@
         .btn-modal:active { transform: translateY(6px); box-shadow: 0 0 0 rgba(0,0,0,0.3); }
         .btn-modal.yes { background: #ff0055; } .btn-modal.no { background: #555; }
 
-        /* MOBILE FIXES */
         @media (max-width: 768px) {
             .mobile-taboo-logo { font-size: 45px; margin-bottom: 5px; }
             .player-name-display { font-size: 20px; margin-bottom: 15px; }
@@ -264,8 +257,7 @@
             .lobby-code-box { font-size: 50px; }
             .lobby-center-text { font-size: 24px; } .lobby-top-bar { flex-direction: column; align-items: center; gap: 10px; text-align: center; } 
             .lobby-top-center { flex: none; order: 3; margin-top: 20px;}
-
-            /* Force exactly 3 columns on mobile icon grid */
+            
             .icon-grid { grid-template-columns: repeat(3, 1fr); padding: 15px; gap: 10px;}
         }
     </style>
@@ -293,6 +285,7 @@
             <div class="player-name-display"></div>
             <h2 id="waiting-player-name" style="text-align: center;">YOU'RE IN!</h2>
             <p class="status-text" id="player-status-msg">Pick an icon while you wait:</p>
+            
             <div class="icon-grid" id="icon-selection-grid">
                 <div class="icon-option no-icon selected" data-icon="none">NO<br>ICON</div>
             </div>
@@ -510,7 +503,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Kill scroll restoration globally
         if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
 
         let myRoomCode = null;
@@ -523,12 +515,19 @@
         let countdownInt = null;
         let gameTimerInt = null;
         
-        let hostTotalRounds = 5; 
-        let hostSkipsAllowed = -1; // -1 = ∞
+        // Host Settings State (Carousel Arrays)
+        const roundsOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+        let currentRoundsIdx = 4; // Default to 5
+        let hostTotalRounds = roundsOptions[currentRoundsIdx];
 
+        const skipsOptions = ['∞', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        let currentSkipsIdx = 0; // Default to ∞
+        let hostSkipsAllowed = -1;
+
+        // Player Tracking State
         window.mySkipsAllowed = -1;
         let skipsUsedThisRound = 0;
-        
+
         // DECK PARSING ENGINE WITH FALLBACK
         window.masterDeck = [];
         
@@ -624,6 +623,32 @@
         }
 
         // ==========================================
+        // ICON GENERATION LOOP
+        // ==========================================
+        const iconGrid = document.getElementById('icon-selection-grid');
+        if (iconGrid) {
+            for (let i = 1; i <= 17; i++) {
+                let div = document.createElement('div'); div.className = 'icon-option';
+                div.style.backgroundImage = `url('images/Taboo%20Icons/${i}.png')`; div.dataset.icon = i;
+                div.addEventListener('click', () => {
+                    if (div.classList.contains('taken')) return; 
+                    document.querySelectorAll('.icon-option').forEach(el => el.classList.remove('selected'));
+                    div.classList.add('selected');
+                    if (myPlayerId && myRoomCode) update(ref(db, `rooms/${myRoomCode}/players/${myPlayerId}`), { icon: i });
+                });
+                iconGrid.appendChild(div);
+            }
+            
+            const noIconBtn = document.querySelector('.icon-option.no-icon');
+            if (noIconBtn) {
+                noIconBtn.addEventListener('click', function() {
+                    document.querySelectorAll('.icon-option').forEach(el => el.classList.remove('selected')); this.classList.add('selected');
+                    if (myPlayerId && myRoomCode) update(ref(db, `rooms/${myRoomCode}/players/${myPlayerId}`), { icon: 'none' });
+                });
+            }
+        }
+
+        // ==========================================
         // HOST LOGIC
         // ==========================================
         let lastTabooState = false; // Edge trigger for buzz sound
@@ -645,6 +670,7 @@
             document.getElementById('turn-over-team-title').className = isRed ? 'text-red' : 'text-blue';
         }
 
+        // Host Settings Custom Sliders
         document.getElementById('btn-rounds-down').addEventListener('click', () => {
             if(hostTotalRounds > 1) {
                 hostTotalRounds--;
@@ -735,7 +761,6 @@
                     const state = snap.val();
                     if(state) {
                         
-                        // Taboo Flash & Buzz Logic
                         if (state.tabooCall) { 
                             document.getElementById('host-taboo-flash').classList.add('active'); 
                             if (!lastTabooState) playSFX('sfx-buzz'); // Play once
@@ -912,6 +937,7 @@
                             clearInterval(gameTimerInt);
                             isGameRunning = false; 
                             
+                            // PERFECTLY MAP THE STATE UPDATE
                             update(ref(db, `rooms/${myRoomCode}`), { status: 'turn_over' }).then(() => {
                                 get(ref(db, `rooms/${myRoomCode}/gameState`)).then(snap2 => {
                                     const currentState = snap2.val();
@@ -1081,8 +1107,10 @@
                 const room = snap.val(); if(!room) return;
                 const status = room.status;
 
+                // Sync Skip Settings locally
                 if (room.skipsAllowed !== undefined) { window.mySkipsAllowed = room.skipsAllowed; }
                 
+                // ENSURE DECKS ARE LOADED IF NEEDED
                 if (room.activeDecks && window.masterDeck.length === 0) {
                     fetchAndParseDecks(room.activeDecks);
                 }
@@ -1150,6 +1178,7 @@
                 }
             });
 
+            // LISTEN TO TABOO CALLS
             onValue(ref(db, `rooms/${codeInput}/gameState/tabooCall`), (snap) => {
                 const called = snap.val();
                 get(ref(db, `rooms/${codeInput}/gameState`)).then(stateSnap => {
@@ -1164,6 +1193,7 @@
         }
 
         function handleCardAction(statusVal) {
+            // ENFORCE SKIP LIMITS BEFORE HITTING DB
             if (statusVal === 'skip') {
                 if (window.mySkipsAllowed !== -1) {
                     if (skipsUsedThisRound >= window.mySkipsAllowed) return; 
@@ -1187,6 +1217,8 @@
                 
                 const prevCard = state.activeCard;
                 prevCard.status = statusVal;
+                
+                // Draw next dynamic card
                 const nextCard = drawCard(state);
 
                 const playedRef = push(ref(db, `rooms/${myRoomCode}/gameState/playedCardsThisTurn`));
@@ -1201,12 +1233,15 @@
         document.getElementById('btn-clue-correct').addEventListener('click', () => handleCardAction('correct'));
         document.getElementById('btn-clue-skip').addEventListener('click', () => handleCardAction('skip'));
 
+        // TABOO BUTTON (Opposite Team)
         document.getElementById('btn-call-taboo').addEventListener('click', function() {
             update(ref(db, `rooms/${myRoomCode}/gameState`), { tabooCall: true });
+            
             const originalText = this.innerText;
             this.innerText = "TABOOED!";
             this.style.pointerEvents = "none";
             this.style.opacity = "0.7";
+            
             setTimeout(() => {
                 this.innerText = originalText;
                 this.style.pointerEvents = "auto";
@@ -1214,6 +1249,7 @@
             }, 2000);
         });
 
+        // MODAL RESPONSES
         document.getElementById('btn-taboo-yes').addEventListener('click', () => {
             document.getElementById('modal-taboo').classList.remove('active');
             update(ref(db, `rooms/${myRoomCode}/gameState`), { tabooCall: false });
@@ -1232,6 +1268,7 @@
         if (isHost) {
             initHost();
         } else {
+            // PLAYER Auto-join 
             const savedCode = sessionStorage.getItem('apeman_room');
             const savedName = sessionStorage.getItem('apeman_name');
             
@@ -1270,6 +1307,7 @@
                     }
                 }).catch((error) => { console.error(error); alert("Connection Error"); window.location.href='index.html'; });
             } else {
+                // If they don't have session data, kick them out
                 window.location.href = 'index.html';
             }
         }
