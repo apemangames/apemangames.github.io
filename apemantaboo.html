@@ -56,10 +56,10 @@
         /* VIEW SYSTEM */
         .view-wrapper { position: relative; width: 100%; display: flex; justify-content: center; flex: 1; overflow-x: hidden; }
         .view-section, .host-fullscreen-view { 
-            position: absolute; top:0; left:0; width: 100%; height: 100vh; padding: 20px; 
+            position: absolute; top:0; left:0; width: 100%; height: 100vh; padding: 20px; padding-bottom: 80px; 
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             opacity: 0; visibility: hidden; transform: scale(1.05); transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s; 
-            overflow-x: hidden;
+            overflow-x: hidden; overflow-y: auto; 
         }
         .view-section.active, .host-fullscreen-view.active { opacity: 1; visibility: visible; transform: scale(1); position: relative; height: auto; min-height: 100vh;}
 
