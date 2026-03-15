@@ -41,8 +41,9 @@
         html, body {
             background-color: var(--bg-color); color: var(--text-light);
             margin: 0; padding: 0; font-family: var(--font-main);
-            min-height: 100vh; width: 100%; overflow-x: hidden;
-            -webkit-overflow-scrolling: touch; /* Enables smooth mobile scrolling */
+            min-height: 100vh; width: 100vw; max-width: 100%; 
+            overflow-x: hidden; overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* Forces buttery smooth native scrolling */
         }
 
         /* MAGICAL MOBILE SCROLL FIX: Detach the background into a fixed layer behind everything */
@@ -54,6 +55,25 @@
         body.theme-taboo-active::before {
             background-image: linear-gradient(rgba(11, 2, 26, 0.8), rgba(11, 2, 26, 0.8)), url('images/taboo-background.png');
             background-size: cover; background-position: center;
+        }
+
+        /* UTILITIES */
+        .text-red { color: var(--color-red-bg) !important; } .text-blue { color: var(--color-blue-bg) !important; }
+        .bg-dark-red { background: rgba(60, 10, 15, 0.95) !important; } .bg-dark-blue { background: rgba(10, 15, 60, 0.95) !important; }
+        .border-red { border-color: var(--color-red-bg) !important; box-shadow: 0 0 30px rgba(255, 75, 114, 0.4) !important; }
+        .border-blue { border-color: var(--color-blue-bg) !important; box-shadow: 0 0 30px rgba(66, 212, 244, 0.4) !important; }
+
+        /* VIEW SYSTEM */
+        .view-wrapper { position: relative; width: 100%; display: flex; justify-content: center; flex: 1; }
+        .view-section, .host-fullscreen-view { 
+            position: absolute; top:0; left:0; width: 100%; padding: 20px; padding-bottom: 120px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            opacity: 0; visibility: hidden; pointer-events: none; /* Prevents invisible screens from blocking scroll */
+            transform: scale(1.05); transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s; 
+        }
+        .view-section.active, .host-fullscreen-view.active { 
+            opacity: 1; visibility: visible; pointer-events: auto; transform: scale(1); 
+            position: relative; height: auto; min-height: 100vh; 
         }
 
         /* UTILITIES */
