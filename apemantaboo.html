@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>APEMAN Taboo</title>
+    
+    <link rel="icon" type="image/png" href="images/taboofavicon.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        @font-face { font-family: 'Gulfs Display'; src: url('GulfsDisplay-Normal.ttf') format('truetype'); font-weight: normal; font-style: normal; }
+        @font-face { font-family: 'taboo'; src: url('taboo-pro-medium.ttf') format('truetype'); font-weight: normal; font-style: normal; }
+
+        :root {
+            --bg-color: #0b021a; --input-bg: #231b2e; --shadow-color: #3b0000; 
+            --text-light: #ffffff; --text-dim: #777286;
+            --font-main: 'Gulfs Display', 'Bungee', cursive;
+            --font-taboo: 'taboo', 'Bungee', cursive;
+            --font-ui: 'Outfit', sans-serif;
+            --transition-speed: 0.4s;
+            
+            --color-blue-bg: #42d4f4; --color-blue-pill: #1f219b; --color-blue-player: #2b30b4;
+            --color-red-bg: #ff4b72; --color-red-pill: #5e131d; --color-red-player: #7a1322;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-light);
+            margin: 0; padding: 0; font-family: var(--font-main);
+            display: flex; min-height: 100vh; flex-direction: column; align-items: center; overflow-x: hidden;
+            background-image: linear-gradient(rgba(11, 2, 26, 0.8), rgba(11, 2, 26, 0.8)), url('images/taboo-background.png');
+            background-size: cover; background-position: center; background-attachment: fixed;
+        }
+
+        /* UTILITIES */
+        .text-red { color: var(--color-red-bg) !important; } .text-blue { color: var(--color-blue-bg) !important; }
+        .bg-dark-red { background: rgba(60, 10, 15, 0.95) !important; } .bg-dark-blue { background: rgba(10, 15, 60, 0.95) !important; }
+        .border-red { border-color: var(--color-red-bg) !important; box-shadow: 0 0 30px rgba(255, 75, 114, 0.4) !important; }
+        .border-blue { border-color: var(--color-blue-bg) !important; box-shadow: 0 0 30px rgba(66, 212, 244, 0.4) !important; }
+
+        /* VIEW SYSTEM */
+        .view-section, .host-fullscreen-view { 
+            position: absolute; top:0; left:0; width: 100vw; height: 100vh; padding: 40px 20px; 
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            opacity: 0; visibility: hidden; transform: scale(1.05); transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s; 
+        }
+        .view-section.active, .host-fullscreen-view.active { opacity: 1; visibility: visible; transform: scale(1); position: relative; height: auto; min-height: 100vh;}
+
+        /* HOST FLOATING CONTROLS */
+        .btn-mute { background: rgba(0,0,0,0.6); border: 2px solid #555; color: white; border-radius: 50%; width: 55px; height: 55px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: all 0.2s; padding: 0; flex-shrink: 0; }
+        .btn-mute svg { width: 28px; height: 28px; fill: white; }
+        .btn-mute:hover { background: rgba(255,255,255,0.2); border-color: white; }
+        
+        #btn-mute-game { position: fixed; top: 40px; left: 40px; z-index: 1000; display: none; }
+        .btn-host-back { position: fixed; top: 110px; left: 40px; z-index: 1000; display: none; background: rgba(0,0,0,0.6); border: 2px solid #555; color: white; font-family: var(--font-ui); font-size: 20px; font-weight: 700; padding: 10px 24px; border-radius: 30px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-host-back:hover { background: rgba(255,255,255,0.2); border-color: white; transform: scale(1.05); }
+
+        #host-floating-code { position: fixed; top: 40px; right: 40px; z-index: 1000; display: none; flex-direction: column; align-items: flex-end; }
+        .code-plain-text { font-family: var(--font-main); font-size: 50px; letter-spacing: 4px; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); margin-bottom: -5px;}
+        .floating-url { font-family: var(--font-ui); font-size: 18px; color: rgba(255,255,255,0.8); font-weight: 500; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);}
+
+        .btn-primary-action { display: none; background-color: #ff0055; color: white; border: none; font-family: var(--font-main); font-size: 40px; padding: 15px 60px; border-radius: 50px; cursor: pointer; box-shadow: 0px 8px 0px #990033; transition: transform 0.1s, box-shadow 0.1s; margin-top: 15px; text-transform: uppercase; }
+        .btn-primary-action:active { transform: translateY(8px); box-shadow: 0px 0px 0px #990033; }
+        .btn-primary-action.ready-btn { background-color: #ff4b72; box-shadow: 0px 8px 0px var(--shadow-color); border-radius: 20px;}
+        .btn-primary-action.ready-btn:active { box-shadow: 0px 0px 0px var(--shadow-color); }
+
+        /* HOST LOBBY VIEW */
+        .lobby-top-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px; flex-wrap: wrap; gap: 20px;}
+        .lobby-logo { font-family: var(--font-taboo); font-size: 80px; color: white; line-height: 0.8; font-weight: normal; flex: 1; text-align: left; }
+        .lobby-top-center { flex: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .lobby-center-text { font-family: var(--font-ui); font-size: 36px; color: rgba(255, 255, 255, 0.9); font-weight: 500; margin: 0; letter-spacing: 1px; text-shadow: 0px 4px 0px var(--shadow-color); }
+        .lobby-code-wrapper { flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+        .lobby-code-row { display: flex; align-items: center; gap: 15px; }
+        .lobby-code-box { font-size: 80px; letter-spacing: 8px; color: white; font-family: var(--font-main); font-weight: normal; text-shadow: 0px 6px 0px var(--shadow-color); margin-bottom: 5px; }
+        .lobby-url { font-family: var(--font-ui); font-size: 20px; color: rgba(255,255,255,0.8); font-weight: 500; margin-right: 10px; }
+        .lobby-center-container { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; flex: 1; margin-top: 20px; width: 100%; }
+
+        /* COUNTDOWN OVERLAY */
+        #countdown-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 200; display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
+        #countdown-overlay.active { opacity: 1; visibility: visible; }
+        .countdown-number { font-family: var(--font-ui); font-size: 180px; font-weight: 800; color: white; margin-bottom: 30px; }
+        .btn-cancel { background-color: transparent; border: 2px solid #ff4444; color: #ff4444; font-family: var(--font-ui); font-size: 24px; padding: 10px 30px; border-radius: 30px; cursor: pointer; font-weight: 700;}
+
+        /* DECKS VIEW (3 DECKS NOW) */
+        #view-host-decks { justify-content: center; align-items: center; padding: 60px 40px;}
+        .screen-title { font-family: var(--font-ui); font-size: 55px; margin-bottom: 40px; font-weight: 800; text-align: center; text-shadow: 0px 6px 0px var(--shadow-color); }
+        .decks-grid { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin-bottom: 20px; }
+        .deck-wrapper { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .deck-card { width: 180px; height: 260px; border-radius: 15px; background-color: #231b2e; cursor: pointer; background-size: cover; background-position: center; border: 4px solid transparent; transition: all 0.2s; }
+        .deck-card.selected { border-color: #42d4f4; box-shadow: 0 0 25px rgba(66, 212, 244, 0.6); transform: scale(1.05); }
+        .deck-label { font-family: var(--font-ui); font-size: 26px; font-weight: 500; color: white; }
+
+        /* HOST CUSTOM SETTINGS */
+        .game-settings { display: flex; gap: 80px; justify-content: center; margin-bottom: 40px; margin-top: 10px; width: 100%; max-width: 800px; }
+        .setting-group { display: flex; flex-direction: column; align-items: center; gap: 15px; flex: 1;}
+        .setting-group label { font-family: var(--font-ui); font-size: 24px; font-weight: 800; color: #ccc; letter-spacing: 1px; }
+        
+        .carousel-container { display: flex; align-items: center; justify-content: center; gap: 15px; background: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 40px; border: 2px solid #444; width: 220px; }
+        .btn-arrow { background: transparent; border: none; color: #ff0055; font-size: 35px; cursor: pointer; transition: transform 0.1s; padding: 0 10px; line-height: 1; }
+        .btn-arrow:hover { transform: scale(1.2); } .btn-arrow:active { transform: scale(0.9); }
+        .carousel-val { font-family: var(--font-main); font-size: 45px; color: white; min-width: 60px; text-align: center; }
+
+        /* TEAMS VIEW */
+        .teams-split { display: flex; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: -1; }
+        .team-col { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 150px; }
+        .team-col::after { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; height: 70%; background-size: contain; background-position: center; background-repeat: no-repeat; opacity: 1; z-index: 0; pointer-events: none; }
+        .bg-blue { background: var(--color-blue-bg); } .bg-blue::after { background-image: url('images/Taboo Icons/9.png'); }
+        .bg-red { background: var(--color-red-bg); } .bg-red::after { background-image: url('images/Taboo Icons/1.png'); }
+        .team-title-pill, .team-player-list { position: relative; z-index: 1; }
+        .team-title-pill { font-family: var(--font-main); font-size: 50px; color: white; padding: 15px 100px; border-radius: 50px; margin-bottom: 40px; text-transform: uppercase; box-shadow: 0px 8px 0px var(--shadow-color); }
+        .team-title-pill.blue { background-color: var(--color-blue-pill); } .team-title-pill.red { background-color: var(--color-red-pill); }
+        .team-player-list { display: flex; flex-direction: column; gap: 20px; width: 100%; align-items: center; padding-bottom: 40px;}
+
+        /* HOST: UP FIRST VIEW */
+        #view-host-up-first { justify-content: center; align-items: center; }
+        .up-first-box { background: rgba(60, 10, 15, 0.95); border-radius: 30px; padding: 60px 80px; text-align: center; max-width: 900px; width: 100%; box-shadow: 0 15px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; transition: background 0.5s; }
+        .up-first-team-text { font-family: var(--font-main); font-size: 45px; color: white; margin-bottom: 30px; text-transform: uppercase; }
+        .up-first-row { display: flex; align-items: center; gap: 20px; justify-content: center; margin-bottom: 40px; }
+        .up-first-icon { height: 180px; width: 180px; object-fit: contain; margin-left: -50px; }
+        .up-first-name { font-family: var(--font-main); font-size: 65px; color: white; text-transform: uppercase; }
+        .up-first-subtext { font-family: var(--font-ui); font-size: 45px; color: white; font-weight: 700; margin-left: 15px;}
+
+        /* HOST: ACTIVE GAME ROUND VIEW */
+        .score-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1000px; margin: 0 auto 40px auto; }
+        .score-pill { font-family: var(--font-main); font-size: 45px; color: white; padding: 15px 50px; border-radius: 20px; }
+        .score-pill.red { background-color: var(--color-red-pill); } .score-pill.blue { background-color: var(--color-blue-pill); }
+        .score-center { font-family: var(--font-main); font-size: 80px; color: white; display: flex; align-items: center; gap: 20px; }
+        .score-center span { font-size: 50px; }
+        
+        .gameplay-layout { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1200px; margin: 0 auto; flex: 1; position: relative; z-index: 10;}
+        .side-panel { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        
+        .timer-container { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1.5; padding: 50px; border-radius: 40px; transition: background 0.5s; }
+        .timer-ring { width: 300px; height: 300px; border-radius: 50%; border: 15px solid transparent; display: flex; justify-content: center; align-items: center; margin-bottom: 30px; transition: border-color 0.5s, box-shadow 0.5s; }
+        .timer-text { font-family: var(--font-main); font-size: 130px; color: white; }
+        .round-text { font-family: var(--font-ui); font-size: 50px; font-weight: 800; color: white; }
+        .active-deck-img { width: 250px; height: 350px; border-radius: 15px; background-size: cover; background-position: center; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        
+        /* CARD UI */
+        .prev-card-mini { width: 200px; position: relative; margin-bottom: 20px; flex-shrink: 0;}
+        .prev-card-inner { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.5); height: 280px; display: flex; flex-direction: column;}
+        .prev-card-header { background: linear-gradient(to bottom, #2b0b3f, #1a0b2e); padding: 12px; text-align: center; min-height: 80px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;}
+        .prev-card-header h4 { font-family: var(--font-main); font-size: 24px; color: white; margin: 0; }
+        .prev-card-body { padding: 15px; text-align: center; display: flex; flex-direction: column; gap: 6px; flex: 1; justify-content: center;}
+        .prev-card-body p { font-family: var(--font-ui); font-size: 16px; font-weight: 800; color: #111; margin: 0; }
+        .prev-card-status { position: absolute; bottom: -20px; right: -20px; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; color: white; box-shadow: 0 5px 15px rgba(0,0,0,0.4); font-weight: bold; z-index: 10;}
+        
+        .prev-card-status.correct { background-color: #00d26a; } .prev-card-status.skip { background-color: #ff9800; } .prev-card-status.taboo { background-color: #ff4444; }
+        .taboo-stamp { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-family: var(--font-main); font-size: 40px; color: rgba(255, 0, 85, 0.9); text-transform: uppercase; text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px -2px 0px #fff, -2px 2px 0px #fff; z-index: 20; pointer-events: none; }
+        
+        #host-taboo-flash { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(255,0,85,0.95); z-index: 50; display:flex; justify-content:center; align-items:center; font-family: var(--font-main); font-size: 250px; color: white; opacity: 0; pointer-events:none; transition: opacity 0.2s; visibility: hidden; }
+        #host-taboo-flash.active { opacity: 1; visibility: visible; }
+
+        /* HOST: TURN OVER RECAP VIEW */
+        #view-host-turn-over { justify-content: center; }
+        .turn-over-box { border-radius: 30px; padding: 40px; text-align: center; max-width: 1100px; width: 100%; box-shadow: 0 15px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; transition: background 0.5s; }
+        .turn-over-header { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 30px; }
+        .turn-over-score { font-family: var(--font-main); font-size: 60px; color: white; background: var(--color-red-pill); padding: 20px 40px; border-radius: 20px; }
+        .turn-over-score.blue { background: var(--color-blue-pill); }
+        .turn-over-title h2 { font-family: var(--font-main); font-size: 55px; color: white; margin: 0; text-transform: uppercase; }
+        .turn-over-title h3 { font-family: var(--font-ui); font-size: 40px; color: white; margin: 0; font-weight: 700; }
+        .turn-over-cards-container { display: flex; gap: 20px; overflow-x: auto; padding: 20px 20px 40px 20px; width: 100%; margin-bottom: 10px; justify-content: flex-start; }
+
+        /* HOST: WINNER SCREEN */
+        #view-host-winner { justify-content: center; }
+
+        /* PLAYER BUBBLES */
+        .player-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 0 40px; margin-top: 10px; }
+        .player-name-bubble { font-family: var(--font-main); font-size: clamp(30px, 4vw, 55px); color: var(--text-light); background: rgba(60, 10, 15, 0.9); padding: 0 40px; height: clamp(80px, 10vw, 130px); border-radius: 80px; text-transform: uppercase; animation: popIn 0.3s ease forwards; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .player-name-bubble.blue-team { background: var(--color-blue-player); }
+        .player-name-bubble.red-team { background: var(--color-red-player); }
+        .player-name-bubble:hover { background: rgba(255, 0, 85, 0.9); text-decoration: line-through; transform: scale(0.95); }
+        .player-name-bubble img { height: 130%; width: clamp(80px, 10vw, 130px); object-fit: contain; background: transparent; border-radius: 0; margin-left: -20px; }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+
+        /* PLAYER WAITING ROOM */
+        .mobile-taboo-logo { font-family: var(--font-taboo); font-size: 60px; color: white; line-height: 0.8; font-weight: normal; margin-bottom: 5px; }
+        .player-name-display { font-family: var(--font-main); font-size: 26px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;}
+        
+        #view-player-waiting { padding-top: 20px; }
+        #view-player-waiting h2 { font-family: var(--font-ui); font-size: 40px; color: var(--text-light); font-weight: 800; margin-bottom: 5px; }
+        .status-text { font-family: var(--font-ui); color: #ddd; font-size: 20px; font-weight: 500; margin-bottom: 30px; letter-spacing: 0.5px; }
+
+        .icon-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; max-width: 600px; margin: 0 auto; padding: 20px; background: rgba(0,0,0,0.4); border-radius: 20px; }
+        .icon-option { width: 100%; aspect-ratio: 1; background-color: rgba(0, 0, 0, 0.6); border-radius: 50%; cursor: pointer; transition: transform 0.2s, outline 0.2s; background-size: cover; background-position: center; position: relative; }
+        .icon-option.no-icon { display: flex; justify-content: center; align-items: center; font-family: var(--font-ui); font-size: 14px; color: #aaa; text-align: center; font-weight: bold; }
+        .icon-option.selected { outline: 4px solid #ff0055; transform: scale(1.1); background-color: rgba(255,0,85,0.4); }
+        .icon-option.taken { opacity: 0.2; pointer-events: none; filter: grayscale(100%); }
+
+        /* PLAYER TEAMS VIEW */
+        #view-player-teams h2 { font-family: var(--font-ui); font-size: 36px; font-weight: 800; text-shadow: 0px 4px 0px var(--shadow-color); margin-bottom: 10px;}
+        .btn-join-team { width: 100%; padding: 30px; font-family: var(--font-main); font-size: 40px; color: white; border: none; border-radius: 20px; margin-bottom: 20px; cursor: pointer; text-transform: uppercase; box-shadow: 0 8px 0 rgba(0,0,0,0.4); transition: transform 0.1s, box-shadow 0.1s, opacity 0.3s; }
+        .btn-join-team:active { transform: translateY(8px); box-shadow: 0 0 0 rgba(0,0,0,0.4); }
+        .btn-join-team.blue { background-color: var(--color-blue-pill); }
+        .btn-join-team.red { background-color: var(--color-red-pill); }
+        #current-team-display { font-family: var(--font-ui); font-size: 22px; margin-bottom: 30px; font-weight: 700; color: #fff;}
+
+        /* PLAYER CLUE GIVER INTERFACE */
+        #view-player-clue-giver { padding: 20px 10px; height: 100%; display: flex; flex-direction: column; justify-content: flex-start; align-items: center;}
+        
+        .clue-card-ui { 
+            background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 15px 30px rgba(0,0,0,0.6); 
+            width: 260px; height: 380px; display: flex; flex-direction: column; margin: 0 auto 30px auto; 
+        }
+        .clue-card-ui .header { background: linear-gradient(to bottom, #2b0b3f, #1a0b2e); padding: 15px; text-align: center; flex-shrink: 0; min-height: 90px; display: flex; align-items: center; justify-content: center;}
+        .clue-card-ui .header h2 { font-family: var(--font-main); font-size: 32px; color: white; margin: 0; }
+        .clue-card-ui .body { padding: 15px; text-align: center; display: flex; flex-direction: column; gap: 10px; flex: 1; justify-content: center;}
+        .clue-card-ui .body p { font-family: var(--font-ui); font-size: 20px; font-weight: 800; color: #111; margin: 0; }
+        
+        .action-buttons { display: flex; justify-content: center; gap: 40px; margin-top: auto; padding-bottom: 40px; width: 100%; max-width: 500px;}
+        .btn-action-game { width: 110px; height: 110px; border-radius: 50%; border: none; padding: 0; font-size: 55px; font-weight: bold; cursor: pointer; box-shadow: 0 8px 0 rgba(0,0,0,0.4); transition: transform 0.1s, opacity 0.2s; display: flex; justify-content: center; align-items: center; font-family: var(--font-ui);}
+        .btn-action-game:active { transform: translateY(8px); box-shadow: 0 0 0 rgba(0,0,0,0.4); }
+        .btn-action-game.correct { background-color: #00d26a; color: white; }
+        .btn-action-game.skip { background-color: #ff9800; color: white; font-size: 50px; font-weight: 900;}
+        
+        /* PLAYER OPPOSITE TEAM */
+        #view-player-opposite { display: flex; flex-direction: column; justify-content: center; height: 100%; padding-bottom: 50px;}
+        .btn-taboo-call { background-color: #ff0055; color: white; border: none; border-radius: 50%; width: 260px; height: 260px; font-family: var(--font-main); font-size: 50px; box-shadow: 0 15px 0 #990033; margin: 0 auto; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s;}
+        .btn-taboo-call:active { transform: translateY(15px); box-shadow: 0 0 0 #990033; }
+
+        /* MODAL */
+        #modal-taboo { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.2s;}
+        #modal-taboo.active { opacity: 1; visibility: visible; }
+        .modal-box { background: white; border-radius: 20px; padding: 40px; text-align: center; max-width: 90%; }
+        .modal-box h2 { font-family: var(--font-main); font-size: 45px; color: #ff0055; margin: 0 0 10px 0;}
+        .modal-box p { font-family: var(--font-ui); font-size: 24px; font-weight: 700; color: #333; margin-bottom: 30px;}
+        .modal-btns { display: flex; gap: 20px; }
+        .btn-modal { flex: 1; padding: 20px; font-family: var(--font-main); font-size: 30px; color: white; border: none; border-radius: 15px; cursor: pointer; box-shadow: 0 6px 0 rgba(0,0,0,0.3); }
+        .btn-modal:active { transform: translateY(6px); box-shadow: 0 0 0 rgba(0,0,0,0.3); }
+        .btn-modal.yes { background: #ff0055; } .btn-modal.no { background: #555; }
+
+        @media (max-width: 768px) {
+            .lobby-logo { font-size: 50px; flex: none; margin-bottom: 10px;}
+            .lobby-code-box { font-size: 50px; }
+            .lobby-center-text { font-size: 24px; } .lobby-top-bar { flex-direction: column; align-items: center; gap: 10px; text-align: center; } 
+            .lobby-top-center { flex: none; order: 3; margin-top: 20px;}
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" src="audio/Sponge.wav" preload="auto" loop></audio>
+
+    <button class="btn-mute" id="btn-mute-game" title="Toggle Music">
+        <svg class="icon-sound-on" width="24" height="24" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        <svg class="icon-sound-off" width="24" height="24" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+    </button>
+    <button class="btn-host-back" id="btn-host-back">◀ BACK</button>
+    
+    <div id="host-floating-code">
+        <div class="code-plain-text" id="global-code-display">LAGD</div>
+        <div class="floating-url">apemangames.github.io</div>
+    </div>
+
+    <div class="view-wrapper">
+        <section id="view-player-waiting" class="view-section player-only-view">
+            <div class="mobile-taboo-logo">apeman<br>taboo</div>
+            <div class="player-name-display"></div>
+            <h2 id="waiting-player-name">YOU'RE IN!</h2>
+            <p class="status-text" id="player-status-msg">Pick an icon while you wait:</p>
+            <div class="icon-grid" id="icon-selection-grid">
+                <div class="icon-option no-icon selected" data-icon="none">NO<br>ICON</div>
+            </div>
+        </section>
+
+        <section id="view-player-teams" class="view-section player-only-view">
+            <div class="mobile-taboo-logo">apeman<br>taboo</div>
+            <div class="player-name-display"></div>
+            <h2>JOIN A TEAM</h2>
+            <div id="current-team-display">CURRENT TEAM: NONE</div>
+            <button class="btn-join-team blue" id="btn-team-blue" onclick="joinTeam('blue')">BLUE TEAM</button>
+            <button class="btn-join-team red" id="btn-team-red" onclick="joinTeam('red')">RED TEAM</button>
+            <p class="status-text" style="margin-top: 20px;">Waiting for host to balance teams...</p>
+        </section>
+
+        <section id="view-player-status" class="view-section player-only-view">
+            <div class="mobile-taboo-logo">apeman<br>taboo</div>
+            <div class="player-name-display"></div>
+            <br>
+            <h2 id="phone-status-header" style="font-size: 50px;">GET READY</h2>
+            <p class="status-text" id="phone-status-sub">Look at the main screen!</p>
+        </section>
+
+        <section id="view-player-opposite" class="view-section player-only-view">
+            <div class="mobile-taboo-logo">apeman<br>taboo</div>
+            <div class="player-name-display"></div>
+            <br>
+            <h2 style="font-size: 40px;">LISTEN CLOSELY</h2>
+            <p class="status-text">If they say a taboo word, hit the button!</p>
+            <button class="btn-taboo-call" id="btn-call-taboo">TABOO!</button>
+        </section>
+
+        <section id="view-player-clue-giver" class="view-section player-only-view">
+            <div class="mobile-taboo-logo" style="margin-bottom: 5px;">apeman<br>taboo</div>
+            <div class="player-name-display" id="clue-giver-player-name" style="margin-bottom: 20px;"></div>
+            
+            <div class="clue-card-ui">
+                <div class="header"><h2 id="clue-word-display">WORD</h2></div>
+                <div class="body" id="clue-taboo-list"></div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn-action-game skip" id="btn-clue-skip">➔</button>
+                <button class="btn-action-game correct" id="btn-clue-correct">✔</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="modal-taboo" class="modal">
+        <div class="modal-box">
+            <h2>TABOO CALLED!</h2>
+            <p>Did you say a taboo word?</p>
+            <div class="modal-btns">
+                <button class="btn-modal yes" id="btn-taboo-yes">YES</button>
+                <button class="btn-modal no" id="btn-taboo-no">NO</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-lobby" class="host-fullscreen-view">
+        <div class="lobby-top-bar">
+            <div class="lobby-logo">apeman<br>taboo</div>
+            <div class="lobby-top-center">
+                <div class="lobby-center-text" id="lobby-waiting-text">Waiting for players...</div>
+                <button class="btn-primary-action" id="btn-host-start-game">START GAME</button>
+            </div>
+            
+            <div class="lobby-code-wrapper">
+                <div class="lobby-code-row">
+                    <button class="btn-mute" id="btn-mute-lobby" title="Toggle Music">
+                        <svg class="icon-sound-on" width="24" height="24" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                        <svg class="icon-sound-off" width="24" height="24" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                    </button>
+                    <div class="lobby-code-box" id="lobby-code-display" style="background:transparent; box-shadow:none; padding:0;">LAGD</div>
+                </div>
+                <div class="lobby-url">Join at apemangames.github.io</div>
+            </div>
+        </div>
+        <div class="lobby-center-container">
+            <div class="player-list" id="lobby-player-list"></div>
+        </div>
+    </div>
+
+    <div id="countdown-overlay">
+        <div class="countdown-number" id="countdown-display">3</div>
+        <button class="btn-cancel" id="btn-cancel-countdown">CANCEL</button>
+    </div>
+
+    <div id="view-host-decks" class="host-fullscreen-view">
+        <div class="screen-title">Choose your decks</div>
+        <div class="decks-grid">
+            <div class="deck-wrapper"><div class="deck-card" data-deck="people" style="background-image: url('images/Taboo Decks/people.png');"></div><div class="deck-label">People</div></div>
+            <div class="deck-wrapper"><div class="deck-card" data-deck="places" style="background-image: url('images/Taboo Decks/places.png');"></div><div class="deck-label">Places</div></div>
+            <div class="deck-wrapper"><div class="deck-card" data-deck="other" style="background-image: url('images/Taboo Decks/other.png');"></div><div class="deck-label">Other</div></div>
+        </div>
+        
+        <div class="game-settings">
+            <div class="setting-group">
+                <label>ROUNDS</label>
+                <div class="carousel-container">
+                    <button class="btn-arrow" id="btn-rounds-down">◀</button>
+                    <div class="carousel-val" id="val-rounds">5</div>
+                    <button class="btn-arrow" id="btn-rounds-up">▶</button>
+                </div>
+            </div>
+            <div class="setting-group">
+                <label>SKIPS PER TURN</label>
+                <div class="carousel-container">
+                    <button class="btn-arrow" id="btn-skips-down">◀</button>
+                    <div class="carousel-val" id="val-skips">∞</div>
+                    <button class="btn-arrow" id="btn-skips-up">▶</button>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-primary-action" id="btn-confirm-decks" style="display: inline-block;">CONTINUE</button>
+    </div>
+
+    <div id="view-host-teams" class="host-fullscreen-view">
+        <div class="screen-title" style="position: relative; z-index: 10;">Choose your teams</div>
+        <div class="teams-split">
+            <div class="team-col bg-blue"><div class="team-title-pill blue">BLUE</div><div class="team-player-list" id="team-list-blue"></div></div>
+            <div class="team-col bg-red"><div class="team-title-pill red">RED</div><div class="team-player-list" id="team-list-red"></div></div>
+        </div>
+        <div style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 20;">
+            <button class="btn-primary-action" id="btn-confirm-teams">CONTINUE</button>
+        </div>
+    </div>
+
+    <div id="view-host-up-first" class="host-fullscreen-view">
+        <div class="screen-title">Up first</div>
+        <div class="up-first-box bg-dark-red" id="host-up-first-box">
+            <div class="up-first-team-text text-red" id="up-first-team-name">RED TEAM • ROUND 1</div>
+            <div class="up-first-row">
+                <img src="" id="up-first-icon" class="up-first-icon" style="display:none;">
+                <span class="up-first-name" id="up-first-player-name">USERNAME</span>
+                <span class="up-first-subtext">is the clue giver!</span>
+            </div>
+            <button class="btn-primary-action ready-btn" id="btn-host-ready" style="display:inline-block;">READY</button>
+        </div>
+    </div>
+
+    <div id="view-host-playing" class="host-fullscreen-view" style="padding: 20px 40px;">
+        <div id="host-taboo-flash">TABOO!</div>
+        
+        <div class="score-bar">
+            <div class="score-pill red">RED TEAM</div>
+            <div class="score-center"><span id="score-red" class="text-red">0</span> <span style="color:white; font-size:40px;">•</span> <span id="score-blue" class="text-blue">0</span></div>
+            <div class="score-pill blue">BLUE TEAM</div>
+        </div>
+        <div class="gameplay-layout">
+            <div class="side-panel">
+                <div class="active-deck-img" id="host-active-deck-img" style="background-image: url('images/Taboo Decks/people.png');"></div>
+            </div>
+            <div class="timer-container bg-dark-red" id="host-timer-box">
+                <div class="timer-ring border-red" id="host-timer-ring"><div class="timer-text" id="host-timer-text">60</div></div>
+                <div class="round-text" id="host-round-text">Round 1</div>
+            </div>
+            <div class="side-panel">
+                <div class="prev-card-mini" id="host-prev-card" style="display: none;">
+                    <div class="prev-card-inner">
+                        <div class="prev-card-header"><h4 id="host-prev-card-header">WORD</h4></div>
+                        <div class="prev-card-body" id="host-prev-card-words"></div>
+                    </div>
+                    <div class="prev-card-status correct" id="host-prev-card-status">✔</div>
+                    <div class="taboo-stamp" id="host-prev-card-stamp" style="display:none;">TABOO!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-host-turn-over" class="host-fullscreen-view">
+        <div class="turn-over-box bg-dark-red" id="host-turn-over-box">
+            <div class="turn-over-header">
+                <div class="turn-over-score red" id="turn-over-score-left">0</div>
+                <div class="turn-over-title">
+                    <h2 class="text-red" id="turn-over-team-title">RED TURN OVER</h2>
+                    <h3 id="turn-over-round-title">Round 1</h3>
+                </div>
+                <div class="turn-over-score blue" id="turn-over-score-right">0</div>
+            </div>
+            <div class="turn-over-cards-container" id="host-turn-over-cards">
+                </div>
+            <button class="btn-primary-action ready-btn" id="btn-host-next-turn" style="display:inline-block;">NEXT</button>
+        </div>
+    </div>
+
+    <div id="view-host-winner" class="host-fullscreen-view">
+        <div class="screen-title" id="winner-title" style="font-size: 100px; text-shadow: 0 10px 0 var(--shadow-color);">RED TEAM WINS!</div>
+        <div class="score-center" style="justify-content: center; margin-bottom: 40px; font-size: 120px; font-family: var(--font-main);">
+            <span id="final-score-red" class="text-red">0</span> <span style="color:white; font-size:60px;">•</span> <span id="final-score-blue" class="text-blue">0</span>
+        </div>
+        <div class="player-list" id="winner-player-list" style="margin-bottom: 60px;"></div>
+        
+        <div style="display: flex; gap: 30px; justify-content: center;">
+            <button class="btn-primary-action" id="btn-play-again" style="display: inline-block;">PLAY AGAIN</button>
+            <button class="btn-primary-action" id="btn-back-to-games" style="display: inline-block; background: #555; box-shadow: 0 8px 0 #222;">BACK TO GAMES</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, set, get, child, onValue, push, update, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBKEkEbUcEz54T851Sr9AWCxQO6QlzuLCY",
+            authDomain: "apeman-games.firebaseapp.com",
+            projectId: "apeman-games",
+            storageBucket: "apeman-games.firebasestorage.app",
+            messagingSenderId: "302972768378",
+            appId: "1:302972768378:web:84a81fc4cbaff66a012bc3",
+            databaseURL: "https://apeman-games-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Kill scroll restoration globally
+        if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+
+        let myRoomCode = null;
+        let myPlayerId = null;
+        let myPlayerName = "PLAYER";
+        
+        let isCountingDown = false;
+        let isGameRunning = false;
+        let countdownInt = null;
+        let gameTimerInt = null;
+        
+        let hostTotalRounds = 5;
+        let hostSkipsAllowed = -1; // -1 = ∞
+
+        window.mySkipsAllowed = -1;
+        let skipsUsedThisRound = 0;
+        
+        // DECK PARSING ENGINE
+        window.masterDeck = [];
+        
+        async function fetchAndParseDecks(deckList) {
+            let allCards = [];
+            for (let deck of deckList) {
+                try {
+                    const res = await fetch(`decks/${deck}.csv`);
+                    const text = await res.text();
+                    const lines = text.split('\n');
+                    for (let i = 1; i < lines.length; i++) { // Skip header
+                        const row = lines[i].trim();
+                        if (!row) continue;
+                        const cols = row.split(',');
+                        if (cols.length >= 6) {
+                            allCards.push({
+                                deck: deck,
+                                word: cols[0].trim(),
+                                taboo: [cols[1].trim(), cols[2].trim(), cols[3].trim(), cols[4].trim(), cols[5].trim()]
+                            });
+                        }
+                    }
+                } catch (err) {
+                    console.error("Failed to load deck:", deck, err);
+                }
+            }
+            if (allCards.length === 0) {
+                allCards.push({ deck: 'error', word: 'NO CARDS LOADED', taboo: ['Check', 'Your', 'CSV', 'Files', 'Folder']});
+            }
+            window.masterDeck = allCards;
+        }
+
+        // AUDIO LOGIC (Infinite Loop @ 63.79s)
+        const bgMusic = document.getElementById('bg-music');
+        bgMusic.volume = 0.5;
+        bgMusic.loop = true; 
+        
+        function checkAudioLoop() {
+            if (bgMusic.currentTime >= 63.79) { bgMusic.currentTime = 0; }
+            requestAnimationFrame(checkAudioLoop);
+        }
+        requestAnimationFrame(checkAudioLoop);
+
+        let isMuted = false;
+        function toggleMute() {
+            isMuted = !isMuted;
+            bgMusic.muted = isMuted;
+            document.querySelectorAll('.icon-sound-on').forEach(el => el.style.display = isMuted ? 'none' : 'block');
+            document.querySelectorAll('.icon-sound-off').forEach(el => el.style.display = isMuted ? 'block' : 'none');
+        }
+        document.getElementById('btn-mute-lobby').addEventListener('click', toggleMute);
+        document.getElementById('btn-mute-game').addEventListener('click', toggleMute);
+
+        // ICON GENERATION
+        const iconGrid = document.getElementById('icon-selection-grid');
+        for (let i = 1; i <= 17; i++) {
+            let div = document.createElement('div'); div.className = 'icon-option';
+            div.style.backgroundImage = `url('images/Taboo Icons/${i}.png')`; div.dataset.icon = i;
+            div.addEventListener('click', () => {
+                if (div.classList.contains('taken')) return; 
+                document.querySelectorAll('.icon-option').forEach(el => el.classList.remove('selected'));
+                div.classList.add('selected');
+                if (myPlayerId && myRoomCode) update(ref(db, `rooms/${myRoomCode}/players/${myPlayerId}`), { icon: i });
+            });
+            iconGrid.appendChild(div);
+        }
+        document.querySelector('.icon-option.no-icon').addEventListener('click', function() {
+            document.querySelectorAll('.icon-option').forEach(el => el.classList.remove('selected')); this.classList.add('selected');
+            if (myPlayerId && myRoomCode) update(ref(db, `rooms/${myRoomCode}/players/${myPlayerId}`), { icon: 'none' });
+        });
+
+        // ==========================================
+        // HOST LOGIC
+        // ==========================================
+        function hideAllHostViews() { 
+            window.scrollTo({top: 0, behavior: 'instant'});
+            document.querySelectorAll('.host-fullscreen-view').forEach(el => el.classList.remove('active')); 
+        }
+
+        function applyHostTheme(teamColor) {
+            const isRed = teamColor === 'red';
+            document.getElementById('host-up-first-box').className = `up-first-box ${isRed ? 'bg-dark-red' : 'bg-dark-blue'}`;
+            document.getElementById('up-first-team-name').className = `up-first-team-text ${isRed ? 'text-red' : 'text-blue'}`;
+            
+            document.getElementById('host-timer-box').className = `timer-container ${isRed ? 'bg-dark-red' : 'bg-dark-blue'}`;
+            document.getElementById('host-timer-ring').className = `timer-ring ${isRed ? 'border-red' : 'border-blue'}`;
+            
+            document.getElementById('host-turn-over-box').className = `turn-over-box ${isRed ? 'bg-dark-red' : 'bg-dark-blue'}`;
+            document.getElementById('turn-over-team-title').className = isRed ? 'text-red' : 'text-blue';
+        }
+
+        // Host Settings Custom Sliders
+        document.getElementById('btn-rounds-down').addEventListener('click', () => {
+            if(hostTotalRounds > 1) {
+                hostTotalRounds--;
+                document.getElementById('val-rounds').innerText = hostTotalRounds;
+            }
+        });
+        document.getElementById('btn-rounds-up').addEventListener('click', () => {
+            if(hostTotalRounds < 20) {
+                hostTotalRounds++;
+                document.getElementById('val-rounds').innerText = hostTotalRounds;
+            }
+        });
+
+        document.getElementById('btn-skips-down').addEventListener('click', () => {
+            if(hostSkipsAllowed === -1) return; // Infinity is min
+            if(hostSkipsAllowed === 0) {
+                hostSkipsAllowed = -1;
+                document.getElementById('val-skips').innerText = '∞';
+            } else {
+                hostSkipsAllowed--;
+                document.getElementById('val-skips').innerText = hostSkipsAllowed;
+            }
+        });
+        document.getElementById('btn-skips-up').addEventListener('click', () => {
+            if(hostSkipsAllowed === -1) {
+                hostSkipsAllowed = 0;
+                document.getElementById('val-skips').innerText = '0';
+            } else if(hostSkipsAllowed < 15) {
+                hostSkipsAllowed++;
+                document.getElementById('val-skips').innerText = hostSkipsAllowed;
+            }
+        });
+
+        function initHost() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'; let code = '';
+            for (let i = 0; i < 4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+            myRoomCode = code; 
+
+            set(ref(db, 'rooms/' + code), { game: 'taboo', status: 'waiting', players: {} }).then(() => {
+                document.body.classList.add('theme-taboo-active'); 
+                document.getElementById('lobby-code-display').innerText = code;
+                document.getElementById('global-code-display').innerText = code;
+                
+                bgMusic.play().catch(e => console.log("Audio blocked.", e));
+
+                document.getElementById('view-lobby').classList.add('active');
+
+                onValue(ref(db, 'rooms/' + code + '/players'), (snapshot) => {
+                    const players = snapshot.val() || {};
+                    const lobbyList = document.getElementById('lobby-player-list');
+                    const textDiv = document.getElementById('lobby-waiting-text');
+                    const startBtn = document.getElementById('btn-host-start-game');
+                    const teamBlueList = document.getElementById('team-list-blue');
+                    const teamRedList = document.getElementById('team-list-red');
+                    const teamsContinueBtn = document.getElementById('btn-confirm-teams');
+                    
+                    lobbyList.innerHTML = ''; teamBlueList.innerHTML = ''; teamRedList.innerHTML = '';
+                    const onlinePlayers = Object.entries(players).filter(([id, p]) => p.status === 'online');
+
+                    if (onlinePlayers.length === 0) { textDiv.innerText = "Waiting for players..."; startBtn.style.display = 'none'; textDiv.style.display = 'block'; }
+                    else if (onlinePlayers.length < 4) { textDiv.innerText = `${4 - onlinePlayers.length} more needed...`; startBtn.style.display = 'none'; textDiv.style.display = 'block'; } 
+                    else { textDiv.style.display = 'none'; startBtn.style.display = 'inline-block'; }
+
+                    const blueCount = onlinePlayers.filter(([id, p]) => p.team === 'blue').length;
+                    const redCount = onlinePlayers.filter(([id, p]) => p.team === 'red').length;
+                    if (blueCount >= 2 && redCount >= 2) { teamsContinueBtn.style.display = 'inline-block'; } 
+                    else { teamsContinueBtn.style.display = 'none'; }
+
+                    onlinePlayers.forEach(([pId, player]) => {
+                        let iconHtml = player.icon && player.icon !== 'none' ? `<img src="images/Taboo Icons/${player.icon}.png" alt="icon">` : '';
+                        const bubbleHtml = `${iconHtml} <span>${player.name}</span>`;
+                        
+                        const lobbyBubble = document.createElement('div');
+                        lobbyBubble.className = 'player-name-bubble'; lobbyBubble.innerHTML = bubbleHtml;
+                        lobbyBubble.addEventListener('click', () => { if(confirm(`Kick ${player.name}?`)) remove(ref(db, `rooms/${code}/players/${pId}`)); });
+                        lobbyList.appendChild(lobbyBubble);
+
+                        if (player.team) {
+                            const teamBubble = document.createElement('div');
+                            teamBubble.className = `player-name-bubble ${player.team}-team`; teamBubble.innerHTML = bubbleHtml;
+                            if (player.team === 'blue') teamBlueList.appendChild(teamBubble);
+                            if (player.team === 'red') teamRedList.appendChild(teamBubble);
+                        }
+                    });
+                });
+
+                onValue(ref(db, 'rooms/' + code + '/gameState'), (snap) => {
+                    const state = snap.val();
+                    if(state) {
+                        if (state.tabooCall) { document.getElementById('host-taboo-flash').classList.add('active'); }
+                        else { document.getElementById('host-taboo-flash').classList.remove('active'); }
+
+                        if(state.scores) {
+                            document.getElementById('score-red').innerText = state.scores.red || 0;
+                            document.getElementById('score-blue').innerText = state.scores.blue || 0;
+                            document.getElementById('turn-over-score-left').innerText = state.scores.red || 0;
+                            document.getElementById('turn-over-score-right').innerText = state.scores.blue || 0;
+                        }
+                        if(state.previousCard) {
+                            const pCard = document.getElementById('host-prev-card');
+                            pCard.style.display = 'block';
+                            
+                            document.getElementById('host-prev-card-header').innerText = state.previousCard.word;
+                            let wordsHtml = '';
+                            state.previousCard.taboo.forEach(w => wordsHtml += `<p>${w}</p>`);
+                            document.getElementById('host-prev-card-words').innerHTML = wordsHtml;
+                            
+                            const statusEl = document.getElementById('host-prev-card-status');
+                            const stampEl = document.getElementById('host-prev-card-stamp');
+                            stampEl.style.display = 'none';
+
+                            if(state.previousCard.status === 'correct') { statusEl.className = 'prev-card-status correct'; statusEl.innerText = '✔'; } 
+                            else if(state.previousCard.status === 'taboo') { 
+                                statusEl.className = 'prev-card-status taboo'; statusEl.innerText = '✕'; 
+                                stampEl.style.display = 'block';
+                            }
+                            else { statusEl.className = 'prev-card-status skip'; statusEl.innerText = '➔'; }
+                        }
+                        if(state.currentRound) {
+                            document.getElementById('host-round-text').innerText = `Round ${state.currentRound}`;
+                            document.getElementById('turn-over-round-title').innerText = `Round ${state.currentRound}`;
+                            if (state.currentTeam) {
+                                document.getElementById('up-first-team-name').innerText = `${state.currentTeam.toUpperCase()} TEAM • ROUND ${state.currentRound}`;
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        document.getElementById('btn-host-start-game').addEventListener('click', () => {
+            if (isCountingDown) return; 
+            isCountingDown = true;
+            
+            update(ref(db, `rooms/${myRoomCode}`), { status: 'starting' });
+            document.getElementById('countdown-overlay').classList.add('active');
+            
+            document.getElementById('host-floating-code').style.display = 'flex';
+            document.getElementById('btn-mute-game').style.display = 'flex';
+            
+            let count = 3; document.getElementById('countdown-display').innerText = count;
+            countdownInt = setInterval(() => {
+                count--;
+                if (count > 0) { document.getElementById('countdown-display').innerText = count; } 
+                else {
+                    clearInterval(countdownInt);
+                    isCountingDown = false;
+                    document.getElementById('countdown-overlay').classList.remove('active');
+                    update(ref(db, `rooms/${myRoomCode}`), { status: 'decks' });
+                    hideAllHostViews(); document.getElementById('view-host-decks').classList.add('active');
+                }
+            }, 1000);
+        });
+
+        document.getElementById('btn-cancel-countdown').addEventListener('click', () => {
+            clearInterval(countdownInt);
+            isCountingDown = false;
+            document.getElementById('countdown-overlay').classList.remove('active');
+            update(ref(db, `rooms/${myRoomCode}`), { status: 'waiting' });
+            
+            document.getElementById('host-floating-code').style.display = 'none';
+            document.getElementById('btn-mute-game').style.display = 'none';
+        });
+
+        document.querySelectorAll('.deck-card').forEach(card => {
+            card.addEventListener('click', () => { card.classList.toggle('selected'); });
+        });
+
+        document.getElementById('btn-confirm-decks').addEventListener('click', () => {
+            const selected = Array.from(document.querySelectorAll('.deck-card.selected')).map(c => c.dataset.deck);
+            
+            // HOST LOADS THE DECK INTO MEMORY HERE
+            fetchAndParseDecks(selected);
+
+            update(ref(db, `rooms/${myRoomCode}`), { 
+                status: 'teams', 
+                activeDecks: selected,
+                totalRounds: hostTotalRounds,
+                skipsAllowed: hostSkipsAllowed
+            });
+            hideAllHostViews(); document.getElementById('view-host-teams').classList.add('active');
+            document.getElementById('btn-host-back').style.display = 'block';
+        });
+
+        document.getElementById('btn-host-back').addEventListener('click', () => {
+            if (document.getElementById('view-host-teams').classList.contains('active')) {
+                update(ref(db, `rooms/${myRoomCode}`), { status: 'decks' });
+                hideAllHostViews(); document.getElementById('view-host-decks').classList.add('active');
+                document.getElementById('btn-host-back').style.display = 'none';
+            }
+        });
+
+        function selectNextPlayer(teamColor) {
+            return get(ref(db, `rooms/${myRoomCode}/players`)).then(snap => {
+                const players = snap.val() || {};
+                const teamPlayers = Object.entries(players).filter(([id, p]) => p.status === 'online' && p.team === teamColor);
+                return teamPlayers[Math.floor(Math.random() * teamPlayers.length)];
+            });
+        }
+
+        document.getElementById('btn-confirm-teams').addEventListener('click', () => {
+            document.getElementById('btn-host-back').style.display = 'none'; 
+            
+            selectNextPlayer('red').then(randomRed => {
+                const initialState = {
+                    currentRound: 1, currentTeam: 'red',
+                    clueGiverId: randomRed[0], clueGiverName: randomRed[1].name, clueGiverIcon: randomRed[1].icon || 'none',
+                    scores: { red: 0, blue: 0 }, playedCardsThisTurn: {}, tabooCall: false
+                };
+                update(ref(db, `rooms/${myRoomCode}`), { status: 'up_first', gameState: initialState }).then(() => {
+                    applyHostTheme('red');
+                    document.getElementById('up-first-team-name').innerText = "RED TEAM • ROUND 1";
+                    document.getElementById('up-first-player-name').innerText = randomRed[1].name;
+                    
+                    const iconEl = document.getElementById('up-first-icon');
+                    if(randomRed[1].icon !== 'none') { iconEl.src = `images/Taboo Icons/${randomRed[1].icon}.png`; iconEl.style.display = 'block'; } 
+                    else { iconEl.style.display = 'none'; }
+                    hideAllHostViews(); document.getElementById('view-host-up-first').classList.add('active');
+                });
+            });
+        });
+
+        document.getElementById('btn-host-ready').addEventListener('click', () => {
+            if (isGameRunning) return; 
+            isGameRunning = true;
+            
+            const firstCard = window.masterDeck[Math.floor(Math.random() * window.masterDeck.length)];
+            
+            update(ref(db, `rooms/${myRoomCode}`), { 
+                status: 'playing', 
+                'gameState/activeCard': firstCard,
+                'gameState/previousCard': null,
+                'gameState/playedCardsThisTurn': null,
+                'gameState/tabooCall': false
+            }).then(() => {
+                document.getElementById('host-active-deck-img').style.backgroundImage = `url('images/Taboo Decks/${firstCard.deck}.png')`;
+                document.getElementById('host-prev-card').style.display = 'none';
+                hideAllHostViews(); document.getElementById('view-host-playing').classList.add('active');
+                
+                let time = 60; document.getElementById('host-timer-text').innerText = time;
+                
+                gameTimerInt = setInterval(() => {
+                    time--; document.getElementById('host-timer-text').innerText = time;
+                    if(time <= 0) {
+                        clearInterval(gameTimerInt);
+                        isGameRunning = false; 
+                        
+                        update(ref(db, `rooms/${myRoomCode}/status`), 'turn_over').then(() => {
+                            get(ref(db, `rooms/${myRoomCode}/gameState`)).then(snap => {
+                                const state = snap.val();
+                                if(!state) return;
+                                
+                                document.getElementById('turn-over-team-title').innerText = `${state.currentTeam.toUpperCase()} TURN OVER`;
+                                
+                                const recapContainer = document.getElementById('host-turn-over-cards');
+                                recapContainer.innerHTML = '';
+                                const played = state.playedCardsThisTurn ? Object.values(state.playedCardsThisTurn) : [];
+                                
+                                played.forEach(card => {
+                                    let statusHtml = ''; let stampHtml = '';
+                                    if(card.status === 'correct') statusHtml = `<div class="prev-card-status correct">✔</div>`;
+                                    else if (card.status === 'taboo') { statusHtml = `<div class="prev-card-status taboo">✕</div>`; stampHtml = `<div class="taboo-stamp" style="display:block; font-size:40px;">TABOO!</div>`; }
+                                    else statusHtml = `<div class="prev-card-status skip">➔</div>`;
+
+                                    let wordsHtml = '';
+                                    if(card.taboo) card.taboo.forEach(w => wordsHtml += `<p>${w}</p>`);
+
+                                    recapContainer.innerHTML += `
+                                        <div class="prev-card-mini">
+                                            <div class="prev-card-inner">
+                                                <div class="prev-card-header"><h4 style="font-size:24px;">${card.word}</h4></div>
+                                                <div class="prev-card-body">${wordsHtml}</div>
+                                            </div>
+                                            ${statusHtml}
+                                            ${stampHtml}
+                                        </div>
+                                    `;
+                                });
+                                hideAllHostViews(); document.getElementById('view-host-turn-over').classList.add('active');
+                            });
+                        });
+                    }
+                }, 1000);
+            });
+        });
+
+        document.getElementById('btn-host-next-turn').addEventListener('click', () => {
+            get(ref(db, `rooms/${myRoomCode}`)).then(snap => {
+                const room = snap.val();
+                const state = room.gameState;
+                let nextTeam = state.currentTeam === 'red' ? 'blue' : 'red';
+                let nextRound = state.currentRound;
+                if (state.currentTeam === 'blue') nextRound++; 
+                
+                // GAME OVER CHECK
+                if (nextRound > room.totalRounds) {
+                    const rScore = state.scores.red || 0;
+                    const bScore = state.scores.blue || 0;
+                    let winner = 'tie';
+                    if (rScore > bScore) winner = 'red';
+                    if (bScore > rScore) winner = 'blue';
+
+                    update(ref(db, `rooms/${myRoomCode}`), { status: 'game_over', 'gameState/winner': winner }).then(() => {
+                        document.getElementById('final-score-red').innerText = rScore;
+                        document.getElementById('final-score-blue').innerText = bScore;
+                        
+                        const titleEl = document.getElementById('winner-title');
+                        if (winner === 'red') { titleEl.innerText = "RED TEAM WINS!"; titleEl.className = "screen-title text-red"; }
+                        else if (winner === 'blue') { titleEl.innerText = "BLUE TEAM WINS!"; titleEl.className = "screen-title text-blue"; }
+                        else { titleEl.innerText = "IT'S A TIE!"; titleEl.className = "screen-title"; }
+
+                        const listEl = document.getElementById('winner-player-list');
+                        listEl.innerHTML = '';
+                        Object.entries(room.players).forEach(([id, p]) => {
+                            if (p.team === winner || winner === 'tie') {
+                                let iconHtml = p.icon && p.icon !== 'none' ? `<img src="images/Taboo Icons/${p.icon}.png" alt="icon">` : '';
+                                listEl.innerHTML += `<div class="player-name-bubble ${p.team}-team">${iconHtml} <span>${p.name}</span></div>`;
+                            }
+                        });
+                        hideAllHostViews(); document.getElementById('view-host-winner').classList.add('active');
+                    });
+                    return; 
+                }
+                
+                selectNextPlayer(nextTeam).then(randomPlayer => {
+                    update(ref(db, `rooms/${myRoomCode}`), { 
+                        status: 'up_first',
+                        'gameState/currentTeam': nextTeam,
+                        'gameState/currentRound': nextRound,
+                        'gameState/clueGiverId': randomPlayer[0],
+                        'gameState/clueGiverName': randomPlayer[1].name,
+                        'gameState/clueGiverIcon': randomPlayer[1].icon || 'none',
+                        'gameState/tabooCall': false
+                    }).then(() => {
+                        applyHostTheme(nextTeam);
+                        document.getElementById('up-first-team-name').innerText = `${nextTeam.toUpperCase()} TEAM • ROUND ${nextRound}`;
+                        document.getElementById('up-first-player-name').innerText = randomPlayer[1].name;
+                        
+                        const iconEl = document.getElementById('up-first-icon');
+                        if(randomPlayer[1].icon !== 'none') { iconEl.src = `images/Taboo Icons/${randomPlayer[1].icon}.png`; iconEl.style.display = 'block'; } 
+                        else { iconEl.style.display = 'none'; }
+                        hideAllHostViews(); document.getElementById('view-host-up-first').classList.add('active');
+                    });
+                });
+            });
+        });
+
+        document.getElementById('btn-play-again').addEventListener('click', () => {
+            update(ref(db, `rooms/${myRoomCode}`), { status: 'decks' }).then(() => {
+                hideAllHostViews(); document.getElementById('view-host-decks').classList.add('active');
+            });
+        });
+        
+        document.getElementById('btn-back-to-games').addEventListener('click', () => {
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+        });
+
+        // ==========================================
+        // PLAYER LOGIC
+        // ==========================================
+        function hideAllPlayerViews() {
+            window.scrollTo({top: 0, behavior: 'instant'});
+            document.querySelectorAll('.player-only-view').forEach(el => el.classList.remove('active'));
+        }
+        
+        function updatePlayerNameDisplays(teamColor) {
+            document.querySelectorAll('.player-name-display').forEach(el => {
+                el.innerText = myPlayerName;
+                if (teamColor) el.style.color = `var(--color-${teamColor}-bg)`;
+                else el.style.color = "white";
+            });
+        }
+
+        window.joinTeam = function(teamColor) {
+            if(myPlayerId && myRoomCode) {
+                update(ref(db, `rooms/${myRoomCode}/players/${myPlayerId}`), { team: teamColor });
+                const display = document.getElementById('current-team-display');
+                display.innerHTML = `CURRENT TEAM: <span style="color:var(--color-${teamColor}-bg)">${teamColor.toUpperCase()}</span>`;
+                document.getElementById('btn-team-blue').style.opacity = '0.4';
+                document.getElementById('btn-team-red').style.opacity = '0.4';
+                document.getElementById(`btn-team-${teamColor}`).style.opacity = '1';
+                updatePlayerNameDisplays(teamColor);
+            }
+        };
+
+        function proceedToWaitingRoom(codeInput) {
+            document.body.classList.add('theme-taboo-active'); 
+            document.getElementById('waiting-player-name').innerText = myPlayerName;
+            
+            updatePlayerNameDisplays(null);
+            hideAllPlayerViews(); document.getElementById('view-player-waiting').classList.add('active');
+
+            onValue(ref(db, `rooms/${codeInput}/players`), (playersSnapshot) => {
+                if (!playersSnapshot.exists()) return;
+                if (!playersSnapshot.hasChild(myPlayerId)) { alert("You were kicked!"); sessionStorage.clear(); window.location.href='index.html'; return; }
+                const players = playersSnapshot.val() || {};
+                
+                if (players[myPlayerId].team) { updatePlayerNameDisplays(players[myPlayerId].team); }
+
+                document.querySelectorAll('.icon-option').forEach(el => el.classList.remove('taken'));
+                Object.keys(players).forEach(pId => {
+                    if (pId !== myPlayerId && players[pId].status === 'online') { 
+                        const takenIcon = players[pId].icon;
+                        if (takenIcon && takenIcon !== 'none') {
+                            const takenDiv = document.querySelector(`.icon-option[data-icon="${takenIcon}"]`);
+                            if (takenDiv) takenDiv.classList.add('taken');
+                        }
+                    }
+                });
+            });
+
+            onValue(ref(db, `rooms/${codeInput}`), (snap) => {
+                const room = snap.val(); if(!room) return;
+                const status = room.status;
+
+                // Sync Skip Settings locally
+                if (room.skipsAllowed !== undefined) { window.mySkipsAllowed = room.skipsAllowed; }
+                
+                // ENSURE DECKS ARE LOADED IF NEEDED
+                if (room.activeDecks && window.masterDeck.length === 0) {
+                    fetchAndParseDecks(room.activeDecks);
+                }
+
+                if (status === 'starting') {
+                    hideAllPlayerViews(); document.getElementById('view-player-waiting').classList.add('active');
+                    document.getElementById('player-status-msg').innerText = "Game is starting! Look at the main screen...";
+                    document.getElementById('icon-selection-grid').style.opacity = '0.5';
+                    document.getElementById('icon-selection-grid').style.pointerEvents = 'none';
+                } else if (status === 'waiting') {
+                    hideAllPlayerViews(); document.getElementById('view-player-waiting').classList.add('active');
+                    document.getElementById('player-status-msg').innerText = "Pick an icon while you wait:";
+                    document.getElementById('icon-selection-grid').style.opacity = '1';
+                    document.getElementById('icon-selection-grid').style.pointerEvents = 'auto';
+                } else if (status === 'decks') {
+                    hideAllPlayerViews(); document.getElementById('view-player-waiting').classList.add('active');
+                    document.getElementById('player-status-msg').innerText = "Host is choosing decks...";
+                } else if (status === 'teams') {
+                    hideAllPlayerViews(); document.getElementById('view-player-teams').classList.add('active');
+                } else if (status === 'up_first') {
+                    hideAllPlayerViews(); document.getElementById('view-player-status').classList.add('active');
+                    if(room.gameState && room.gameState.clueGiverId === myPlayerId) {
+                        const teamColor = room.gameState.currentTeam;
+                        document.getElementById('phone-status-header').innerText = "YOU'RE UP!";
+                        document.getElementById('phone-status-header').style.color = `var(--color-${teamColor}-bg)`;
+                        document.getElementById('phone-status-sub').innerText = "Get ready to give clues!";
+                    } else {
+                        document.getElementById('phone-status-header').innerText = "GET READY";
+                        document.getElementById('phone-status-header').style.color = "white";
+                        document.getElementById('phone-status-sub').innerText = "Look at the main screen!";
+                    }
+                } else if (status === 'playing') {
+                    
+                    skipsUsedThisRound = 0;
+                    document.getElementById('btn-clue-skip').style.opacity = '1';
+                    document.getElementById('btn-clue-skip').style.pointerEvents = 'auto';
+
+                    if(room.gameState && room.gameState.clueGiverId === myPlayerId) {
+                        hideAllPlayerViews(); document.getElementById('view-player-clue-giver').classList.add('active');
+
+                        if(room.gameState.activeCard) {
+                            document.getElementById('clue-word-display').innerText = room.gameState.activeCard.word;
+                            let tabooHtml = '';
+                            room.gameState.activeCard.taboo.forEach(w => tabooHtml += `<p>${w}</p>`);
+                            document.getElementById('clue-taboo-list').innerHTML = tabooHtml;
+                        }
+                    } else if (room.players[myPlayerId] && room.players[myPlayerId].team !== room.gameState.currentTeam) {
+                        hideAllPlayerViews(); document.getElementById('view-player-opposite').classList.add('active');
+                    } else {
+                        hideAllPlayerViews(); document.getElementById('view-player-status').classList.add('active');
+                        document.getElementById('phone-status-header').innerText = "LISTEN";
+                        document.getElementById('phone-status-header').style.color = "white";
+                        document.getElementById('phone-status-sub').innerText = `${room.gameState.clueGiverName} is giving clues!`;
+                    }
+                } else if (status === 'turn_over') {
+                    hideAllPlayerViews(); document.getElementById('view-player-status').classList.add('active');
+                    document.getElementById('phone-status-header').innerText = "TURN OVER";
+                    document.getElementById('phone-status-header').style.color = "white";
+                    document.getElementById('phone-status-sub').innerText = "Look at the main screen!";
+                } else if (status === 'game_over') {
+                    hideAllPlayerViews(); document.getElementById('view-player-status').classList.add('active');
+                    document.getElementById('phone-status-header').innerText = "GAME OVER!";
+                    document.getElementById('phone-status-header').style.color = "white";
+                    document.getElementById('phone-status-sub').innerText = "Look at the TV!";
+                }
+            });
+
+            onValue(ref(db, `rooms/${codeInput}/gameState/tabooCall`), (snap) => {
+                const called = snap.val();
+                get(ref(db, `rooms/${codeInput}/gameState`)).then(stateSnap => {
+                    const state = stateSnap.val();
+                    if(called && state && state.clueGiverId === myPlayerId) {
+                        document.getElementById('modal-taboo').classList.add('active');
+                    } else {
+                        document.getElementById('modal-taboo').classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        function handleCardAction(statusVal) {
+            if (statusVal === 'skip') {
+                if (window.mySkipsAllowed !== -1) {
+                    if (skipsUsedThisRound >= window.mySkipsAllowed) return; 
+                    skipsUsedThisRound++;
+                    if (skipsUsedThisRound >= window.mySkipsAllowed) {
+                        document.getElementById('btn-clue-skip').style.opacity = '0.3';
+                        document.getElementById('btn-clue-skip').style.pointerEvents = 'none';
+                    }
+                }
+            }
+
+            get(ref(db, `rooms/${myRoomCode}/gameState`)).then(snap => {
+                const state = snap.val();
+                let newScores = state.scores || {red:0, blue:0};
+                
+                if(statusVal === 'correct') { newScores[state.currentTeam] += 1; }
+                else if(statusVal === 'taboo') { 
+                    const oppositeTeam = state.currentTeam === 'red' ? 'blue' : 'red';
+                    newScores[oppositeTeam] += 1; 
+                }
+                
+                const prevCard = state.activeCard;
+                prevCard.status = statusVal;
+                
+                // DRAW FROM MASTER DECK
+                const nextCard = window.masterDeck[Math.floor(Math.random() * window.masterDeck.length)];
+
+                const playedRef = push(ref(db, `rooms/${myRoomCode}/gameState/playedCardsThisTurn`));
+                set(playedRef, prevCard);
+
+                update(ref(db, `rooms/${myRoomCode}/gameState`), {
+                    scores: newScores, previousCard: prevCard, activeCard: nextCard
+                });
+            });
+        }
+        
+        document.getElementById('btn-clue-correct').addEventListener('click', () => handleCardAction('correct'));
+        document.getElementById('btn-clue-skip').addEventListener('click', () => handleCardAction('skip'));
+
+        document.getElementById('btn-call-taboo').addEventListener('click', function() {
+            update(ref(db, `rooms/${myRoomCode}/gameState`), { tabooCall: true });
+            const originalText = this.innerText;
+            this.innerText = "TABOOED!";
+            this.style.pointerEvents = "none";
+            this.style.opacity = "0.7";
+            setTimeout(() => {
+                this.innerText = originalText;
+                this.style.pointerEvents = "auto";
+                this.style.opacity = "1";
+            }, 2000);
+        });
+
+        document.getElementById('btn-taboo-yes').addEventListener('click', () => {
+            document.getElementById('modal-taboo').classList.remove('active');
+            update(ref(db, `rooms/${myRoomCode}/gameState`), { tabooCall: false });
+            handleCardAction('taboo');
+        });
+        
+        document.getElementById('btn-taboo-no').addEventListener('click', () => {
+            document.getElementById('modal-taboo').classList.remove('active');
+            update(ref(db, `rooms/${myRoomCode}/gameState`), { tabooCall: false });
+        });
+
+        // INIT ROUTING
+        const urlParams = new URLSearchParams(window.location.search);
+        const isHost = urlParams.get('host') === 'true';
+
+        if (isHost) {
+            initHost();
+        } else {
+            const savedCode = sessionStorage.getItem('apeman_room');
+            const savedName = sessionStorage.getItem('apeman_name');
+            
+            if (savedCode && savedName) {
+                get(child(ref(db), `rooms/${savedCode}`)).then((roomSnap) => {
+                    if (!roomSnap.exists()) { alert("Room no longer exists!"); sessionStorage.clear(); window.location.href='index.html'; return; }
+
+                    const players = roomSnap.val().players || {};
+                    let existingPlayerId = null; let canJoin = true;
+
+                    for (const [pId, p] of Object.entries(players)) {
+                        if (p.name.toLowerCase() === savedName.toLowerCase()) {
+                            if (p.status === 'online') { canJoin = false; break; } 
+                            else { existingPlayerId = pId; break; }
+                        }
+                    }
+
+                    if (!canJoin) { alert("Name already active!"); sessionStorage.clear(); window.location.href='index.html'; return; }
+
+                    myRoomCode = savedCode;
+                    myPlayerName = savedName.toUpperCase();
+
+                    if (existingPlayerId) {
+                        myPlayerId = existingPlayerId;
+                        const myStatusRef = ref(db, `rooms/${savedCode}/players/${myPlayerId}/status`);
+                        onDisconnect(myStatusRef).set('offline').then(() => {
+                            update(ref(db, `rooms/${savedCode}/players/${myPlayerId}`), { status: 'online' }).then(() => { proceedToWaitingRoom(savedCode); });
+                        });
+                    } else {
+                        const newPlayerRef = push(ref(db, `rooms/${savedCode}/players`));
+                        myPlayerId = newPlayerRef.key;
+                        const myStatusRef = ref(db, `rooms/${savedCode}/players/${myPlayerId}/status`);
+                        onDisconnect(myStatusRef).set('offline').then(() => {
+                            set(newPlayerRef, { name: savedName, score: 0, icon: 'none', status: 'online' }).then(() => { proceedToWaitingRoom(savedCode); });
+                        });
+                    }
+                }).catch((error) => { console.error(error); alert("Connection Error"); window.location.href='index.html'; });
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

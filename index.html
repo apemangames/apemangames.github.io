@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>APEMAN Games</title>
+    
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        @font-face { font-family: 'Gulfs Display'; src: url('GulfsDisplay-Normal.ttf') format('truetype'); font-weight: normal; font-style: normal; }
+        @font-face { font-family: 'taboo'; src: url('taboo-pro-medium.ttf') format('truetype'); font-weight: normal; font-style: normal; }
+
+        :root {
+            --bg-color: #0b021a; --input-bg: #231b2e; --shadow-color: #3b0000; 
+            --text-light: #ffffff; --text-dim: #777286;
+            --font-main: 'Gulfs Display', 'Bungee', cursive;
+            --font-taboo: 'taboo', 'Bungee', cursive;
+            --font-ui: 'Outfit', sans-serif;
+            --transition-speed: 0.4s;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color); color: var(--text-light);
+            margin: 0; padding: 0; font-family: var(--font-main);
+            font-weight: normal; display: flex; min-height: 100vh;
+            flex-direction: column; align-items: center; overflow-x: hidden;
+        }
+
+        /* HEADER & TABS */
+        header { text-align: center; margin-top: 50px; width: 100%; z-index: 10; transition: opacity var(--transition-speed) ease; }
+        h1 { font-size: 56px; margin: 0; letter-spacing: 2px; text-shadow: 2px 2px 0px rgba(0,0,0,0.5); font-weight: normal; }
+        .tabs { margin-top: 20px; display: flex; justify-content: center; gap: 40px; }
+        .tab { font-size: 32px; color: var(--text-dim); cursor: pointer; transition: color 0.3s ease; font-weight: normal; }
+        .tab.active { color: var(--text-light); text-decoration: underline; text-decoration-thickness: 6px; text-underline-offset: 10px; }
+
+        /* VIEW CONTAINERS */
+        .view-wrapper { position: relative; width: 100%; max-width: 1000px; display: flex; justify-content: center; flex: 1; }
+        .view-section { position: absolute; width: 100%; padding: 40px 20px; text-align: center; opacity: 0; visibility: hidden; transform: translateY(15px); transition: opacity var(--transition-speed) ease, transform var(--transition-speed) ease, visibility var(--transition-speed); }
+        .view-section.active { opacity: 1; visibility: visible; transform: translateY(0); position: relative; }
+
+        /* PLAY VIEW */
+        .pill-input { width: 100%; max-width: 400px; background-color: var(--input-bg); border: none; color: var(--text-light); font-family: var(--font-main); font-size: 28px; text-align: center; padding: 20px; border-radius: 40px; box-shadow: 0px 8px 0px var(--shadow-color); margin-bottom: 35px; outline: none; transition: transform 0.1s, box-shadow 0.1s; display: block; margin: 0 auto 35px auto; text-transform: uppercase; }
+        .pill-input:focus { transform: translateY(2px); box-shadow: 0px 6px 0px var(--shadow-color); }
+        .btn-join { background-color: var(--text-light); color: var(--bg-color); cursor: pointer; }
+        .btn-join:active { transform: translateY(8px); box-shadow: 0px 0px 0px var(--shadow-color); }
+        .error-message { color: #ff4444; font-family: var(--font-ui); font-weight: 700; margin-bottom: 20px; display: none; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 10px;}
+        .mobile-notice { display: none; color: var(--text-dim); font-family: var(--font-ui); font-size: 16px; margin-top: 20px; }
+
+        /* HOST VIEW: GAMES */
+        .game-grid { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
+        .game-card { width: 400px; height: 350px; border-radius: 20px; overflow: hidden; cursor: pointer; position: relative; background-color: #231b2e; display: flex; flex-direction: column; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .game-card:hover { transform: scale(1.03) translateY(-5px); box-shadow: 0px 10px 25px rgba(0,0,0,0.5); }
+        .card-image-taboo { height: 65%; background-image: url('images/taboo-thumbnail.png'); background-size: cover; background-position: center; }
+        .card-footer { height: 35%; background-color: #231b2e; padding: 20px; text-align: left; font-family: 'Helvetica', sans-serif; }
+        .card-footer h3 { font-family: var(--font-taboo); font-size: 32px; margin: 0 0 5px 0; font-weight: normal; }
+        .card-footer p { margin: 0; color: #ccc; font-size: 16px; margin-top: 5px; font-weight: normal; }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 40px; margin-top: 10px; } header { margin-top: 20px; } #tab-host { display: none; } .tabs { gap: 0; }
+            .pill-input { font-size: 22px; padding: 18px; max-width: 90%; } .mobile-notice { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <header id="main-header">
+        <h1>APEMAN GAMES</h1>
+        <div class="tabs">
+            <span id="tab-play" class="tab active" onclick="switchTab('play')">PLAY</span>
+            <span id="tab-host" class="tab" onclick="switchTab('host')">HOST</span>
+        </div>
+    </header>
+
+    <div class="view-wrapper">
+        <section id="view-play" class="view-section active">
+            <div id="join-error" class="error-message">Fill out both fields!</div>
+            <input type="text" id="input-code" class="pill-input" placeholder="JOIN CODE" maxlength="4" autocomplete="off" style="text-transform: uppercase;">
+            <input type="text" id="input-name" class="pill-input" placeholder="NICKNAME" maxlength="12" autocomplete="off">
+            <button class="pill-input btn-join" id="btn-join">PLAY</button>
+            <p class="mobile-notice">Open this site on desktop to host a game</p>
+        </section>
+
+        <section id="view-host" class="view-section">
+            <div class="game-grid">
+                <div class="game-card" id="btn-start-taboo" onclick="window.location.href='apemantaboo.html?host=true'">
+                    <div class="card-image-taboo"></div>
+                    <div class="card-footer">
+                        <h3>apeman taboo</h3>
+                        <p>Taboo, but personalized.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBKEkEbUcEz54T851Sr9AWCxQO6QlzuLCY",
+            authDomain: "apeman-games.firebaseapp.com",
+            projectId: "apeman-games",
+            storageBucket: "apeman-games.firebasestorage.app",
+            messagingSenderId: "302972768378",
+            appId: "1:302972768378:web:84a81fc4cbaff66a012bc3",
+            databaseURL: "https://apeman-games-default-rtdb.firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+
+        window.switchTab = function(mode) {
+            window.scrollTo(0,0);
+            const tabPlay = document.getElementById('tab-play'); const tabHost = document.getElementById('tab-host');
+            const viewPlay = document.getElementById('view-play'); const viewHost = document.getElementById('view-host');
+            if (mode === 'play') {
+                tabPlay.classList.add('active'); tabHost.classList.remove('active');
+                viewHost.classList.remove('active'); setTimeout(() => viewPlay.classList.add('active'), 200); 
+            } else {
+                tabHost.classList.add('active'); tabPlay.classList.remove('active');
+                viewPlay.classList.remove('active'); setTimeout(() => viewHost.classList.add('active'), 200);
+            }
+        };
+
+        document.getElementById('btn-join').addEventListener('click', () => {
+            const codeInput = document.getElementById('input-code').value.trim().toUpperCase();
+            const nameInput = document.getElementById('input-name').value.trim();
+            const errorDiv = document.getElementById('join-error');
+
+            if (codeInput.length !== 4 || nameInput.length === 0) { 
+                errorDiv.innerText = "Enter a 4-letter code and a name."; errorDiv.style.display = 'block'; return; 
+            }
+
+            get(child(ref(db), `rooms/${codeInput}`)).then((roomSnap) => {
+                if (!roomSnap.exists()) { errorDiv.innerText = "Room not found!"; errorDiv.style.display = 'block'; return; }
+                
+                const roomData = roomSnap.val();
+                
+                sessionStorage.setItem('apeman_room', codeInput);
+                sessionStorage.setItem('apeman_name', nameInput);
+
+                if (roomData.game === 'taboo') {
+                    window.location.href = 'apemantaboo.html';
+                } else {
+                    errorDiv.innerText = "Game mode not recognized."; errorDiv.style.display = 'block';
+                }
+            }).catch(e => {
+                console.error(e); errorDiv.innerText = "Connection error."; errorDiv.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
