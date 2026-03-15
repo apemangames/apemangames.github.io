@@ -41,10 +41,19 @@
         html, body {
             background-color: var(--bg-color); color: var(--text-light);
             margin: 0; padding: 0; font-family: var(--font-main);
-            display: flex; min-height: 100vh; flex-direction: column; align-items: center; 
-            width: 100%; max-width: 100vw; overflow-x: hidden; overflow-y: auto;
+            min-height: 100vh; width: 100%; overflow-x: hidden;
+            -webkit-overflow-scrolling: touch; /* Enables smooth mobile scrolling */
+        }
+
+        /* MAGICAL MOBILE SCROLL FIX: Detach the background into a fixed layer behind everything */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: var(--bg-color); z-index: -1; pointer-events: none;
+            transition: background-image 0.5s ease;
+        }
+        body.theme-taboo-active::before {
             background-image: linear-gradient(rgba(11, 2, 26, 0.8), rgba(11, 2, 26, 0.8)), url('images/taboo-background.png');
-            background-size: cover; background-position: center; background-attachment: fixed;
+            background-size: cover; background-position: center;
         }
 
         /* UTILITIES */
@@ -56,12 +65,15 @@
         /* VIEW SYSTEM */
         .view-wrapper { position: relative; width: 100%; display: flex; justify-content: center; flex: 1; overflow-x: hidden; }
         .view-section, .host-fullscreen-view { 
-            position: absolute; top:0; left:0; width: 100%; height: 100vh; padding: 20px; padding-bottom: 80px; 
+            position: absolute; top:0; left:0; width: 100%; padding: 20px; padding-bottom: 100px; /* Extra padding so icons clear the bottom bar */
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             opacity: 0; visibility: hidden; transform: scale(1.05); transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s; 
-            overflow-x: hidden; overflow-y: auto; 
         }
-        .view-section.active, .host-fullscreen-view.active { opacity: 1; visibility: visible; transform: scale(1); position: relative; height: auto; min-height: 100vh;}
+        .view-section.active, .host-fullscreen-view.active { 
+            opacity: 1; visibility: visible; transform: scale(1); 
+            position: relative; height: auto; min-height: 100vh; 
+            overflow: visible; /* Let the native browser handle the scrolling! */
+        }
 
         /* HOST FLOATING CONTROLS */
         .btn-mute { background: rgba(0,0,0,0.6); border: 2px solid #555; color: white; border-radius: 50%; width: 55px; height: 55px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: all 0.2s; padding: 0; flex-shrink: 0; }
