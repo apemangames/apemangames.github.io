@@ -27,7 +27,7 @@
             --color-red-bg: #ff4b72; --color-red-pill: #5e131d; --color-red-player: #7a1322;
         }
 
-        /* GLOBAL FIXES: NO BOLD, NO INVISIBLE SCROLLBARS */
+        /* GLOBAL SCROLLBAR HIDING & NO BOLD */
         * { 
             box-sizing: border-box; 
             font-weight: normal !important; 
@@ -36,14 +36,23 @@
         }
         *::-webkit-scrollbar { display: none; }
 
-        /* APP SHELL FIX: Lock the body, no horizontal scroll ever */
         html, body {
-            background-color: var(--bg-color); color: var(--text-light);
+            background-color: transparent;
+            color: var(--text-light);
             margin: 0; padding: 0; font-family: var(--font-main);
             display: flex; flex-direction: column; align-items: center; 
-            width: 100%; height: 100%; overflow: hidden; /* Locks the background */
+            width: 100%; height: 100%; overflow: hidden;
+        }
+
+        /* MAGICAL MOBILE SCROLL FIX */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: var(--bg-color); z-index: -1; pointer-events: none;
+            transition: background-image 0.5s ease;
+        }
+        body.theme-taboo-active::before {
             background-image: linear-gradient(rgba(11, 2, 26, 0.8), rgba(11, 2, 26, 0.8)), url('images/taboo-background.png');
-            background-size: cover; background-position: center; background-attachment: fixed;
+            background-size: cover; background-position: center;
         }
 
         /* UTILITIES */
@@ -52,27 +61,15 @@
         .border-red { border-color: var(--color-red-bg) !important; box-shadow: 0 0 30px rgba(255, 75, 114, 0.4) !important; }
         .border-blue { border-color: var(--color-blue-bg) !important; box-shadow: 0 0 30px rgba(66, 212, 244, 0.4) !important; }
 
-        /* HEADER & TABS */
-        header { text-align: center; margin-top: 50px; width: 100%; z-index: 10; transition: opacity var(--transition-speed) ease; flex-shrink: 0; }
-        h1 { font-size: 56px; margin: 0; letter-spacing: 2px; text-shadow: 2px 2px 0px rgba(0,0,0,0.5); }
-        .tabs { margin-top: 20px; display: flex; justify-content: center; gap: 40px; }
-        .tab { font-size: 32px; color: var(--text-dim); cursor: pointer; transition: color 0.3s ease; }
-        .tab.active { color: var(--text-light); text-decoration: underline; text-decoration-thickness: 6px; text-underline-offset: 10px; }
-
-        /* VIEW SYSTEM - THE MAGIC SCROLL FIX */
+        /* VIEW SYSTEM */
         .view-wrapper { position: relative; width: 100%; display: flex; justify-content: center; flex: 1; overflow: hidden; }
-        
         .view-section, .host-fullscreen-view { 
             position: absolute; top:0; left:0; width: 100%; height: 100%; padding: 20px; padding-bottom: 80px; 
             display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
             opacity: 0; visibility: hidden; pointer-events: none; transform: scale(1.05); transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s; 
-            /* Let the individual screens scroll internally */
             overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
         }
-        
-        .view-section.active, .host-fullscreen-view.active { 
-            opacity: 1; visibility: visible; pointer-events: auto; transform: scale(1); 
-        }
+        .view-section.active, .host-fullscreen-view.active { opacity: 1; visibility: visible; pointer-events: auto; transform: scale(1); }
 
         /* HOST FLOATING CONTROLS */
         .btn-mute { background: rgba(0,0,0,0.6); border: 2px solid #555; color: white; border-radius: 50%; width: 55px; height: 55px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: all 0.2s; padding: 0; flex-shrink: 0; }
@@ -92,14 +89,6 @@
         .btn-primary-action.ready-btn { background-color: #ff4b72; box-shadow: 0px 8px 0px var(--shadow-color); border-radius: 20px;}
         .btn-primary-action.ready-btn:active { box-shadow: 0px 0px 0px var(--shadow-color); }
 
-        /* PLAY VIEW */
-        .pill-input { width: 100%; max-width: 400px; background-color: var(--input-bg); border: none; color: var(--text-light); font-family: var(--font-main); font-size: 28px; text-align: center; padding: 20px; border-radius: 40px; box-shadow: 0px 8px 0px var(--shadow-color); margin-bottom: 35px; outline: none; transition: transform 0.1s, box-shadow 0.1s; display: block; margin: 0 auto 35px auto; text-transform: uppercase; }
-        .pill-input:focus { transform: translateY(2px); box-shadow: 0px 6px 0px var(--shadow-color); }
-        .btn-join { background-color: var(--text-light); color: var(--bg-color); cursor: pointer; }
-        .btn-join:active { transform: translateY(8px); box-shadow: 0px 0px 0px var(--shadow-color); }
-        .error-message { color: #ff4444; font-family: var(--font-ui); margin-bottom: 20px; display: none; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 10px;}
-        .mobile-notice { display: none; color: var(--text-dim); font-family: var(--font-ui); font-size: 16px; margin-top: 20px; }
-
         /* HOST LOBBY VIEW */
         .lobby-top-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px; flex-wrap: wrap; gap: 20px;}
         .lobby-logo { font-family: var(--font-taboo); font-size: 80px; color: white; line-height: 0.8; flex: 1; text-align: left; }
@@ -112,7 +101,7 @@
         .lobby-center-container { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; flex: 1; margin-top: 20px; width: 100%; }
 
         /* COUNTDOWN OVERLAY */
-        #countdown-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
+        #countdown-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 200; display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
         #countdown-overlay.active { opacity: 1; visibility: visible; }
         .countdown-number { font-family: var(--font-ui); font-size: 180px; color: white; margin-bottom: 30px; text-align: center; }
         .btn-cancel { background-color: transparent; border: 2px solid #ff4444; color: #ff4444; font-family: var(--font-ui); font-size: 24px; padding: 10px 30px; border-radius: 30px; cursor: pointer; }
@@ -136,7 +125,7 @@
         .carousel-val { font-family: var(--font-main); font-size: 45px; color: white; min-width: 60px; text-align: center; }
 
         /* TEAMS VIEW */
-        .teams-split { display: flex; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: -1; }
+        .teams-split { display: flex; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: -1; }
         .team-col { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 150px; }
         .team-col::after { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; height: 70%; background-size: contain; background-position: center; background-repeat: no-repeat; opacity: 1; z-index: 0; pointer-events: none; }
         .bg-blue { background: var(--color-blue-bg); } .bg-blue::after { background-image: url('images/Taboo Icons/9.png'); }
@@ -156,7 +145,7 @@
         .up-first-subtext { font-family: var(--font-ui); font-size: 45px; color: white; margin-left: 15px;}
 
         /* HOST: ACTIVE GAME ROUND VIEW */
-        .score-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1000px; margin: 0 auto 40px auto; flex-shrink: 0; }
+        .score-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1000px; margin: 0 auto 40px auto; }
         .score-pill { font-family: var(--font-main); font-size: 45px; color: white; padding: 15px 50px; border-radius: 20px; }
         .score-pill.red { background-color: var(--color-red-pill); } .score-pill.blue { background-color: var(--color-blue-pill); }
         .score-center { font-family: var(--font-main); font-size: 80px; color: white; display: flex; align-items: center; gap: 20px; }
@@ -183,21 +172,21 @@
         .prev-card-status.correct { background-color: #00d26a; } .prev-card-status.skip { background-color: #ff9800; } .prev-card-status.taboo { background-color: #ff4444; }
         .taboo-stamp { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-family: var(--font-main); font-size: 40px; color: rgba(255, 0, 85, 0.9); text-transform: uppercase; text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px -2px 0px #fff, -2px 2px 0px #fff; z-index: 20; pointer-events: none; }
         
-        #host-taboo-flash { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,0,85,0.95); z-index: 50; display:flex; justify-content:center; align-items:center; font-family: var(--font-main); font-size: 250px; color: white; opacity: 0; pointer-events:none; transition: opacity 0.2s; visibility: hidden; }
+        #host-taboo-flash { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(255,0,85,0.95); z-index: 50; display:flex; justify-content:center; align-items:center; font-family: var(--font-main); font-size: 250px; color: white; opacity: 0; pointer-events:none; transition: opacity 0.2s; visibility: hidden; }
         #host-taboo-flash.active { opacity: 1; visibility: visible; }
 
         /* HOST: TURN OVER RECAP VIEW */
-        #view-host-turn-over { justify-content: center; }
-        .turn-over-box { border-radius: 30px; padding: 40px; text-align: center; max-width: 1100px; width: 100%; box-shadow: 0 15px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; transition: background 0.5s; flex-shrink: 0; margin: auto 0; }
+        #view-host-turn-over { justify-content: center; align-items: center; }
+        .turn-over-box { border-radius: 30px; padding: 40px; text-align: center; max-width: 1100px; width: 100%; box-shadow: 0 15px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; transition: background 0.5s; }
         .turn-over-header { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 30px; }
         .turn-over-score { font-family: var(--font-main); font-size: 60px; color: white; background: var(--color-red-pill); padding: 20px 40px; border-radius: 20px; }
         .turn-over-score.blue { background: var(--color-blue-pill); }
-        .turn-over-title h2 { font-family: var(--font-main); font-size: 55px; color: white; margin: 0; text-transform: uppercase; text-align: center;}
-        .turn-over-title h3 { font-family: var(--font-ui); font-size: 40px; color: white; margin: 0; text-align: center;}
+        .turn-over-title h2 { font-family: var(--font-main); font-size: 55px; color: white; margin: 0; text-transform: uppercase; }
+        .turn-over-title h3 { font-family: var(--font-ui); font-size: 40px; color: white; margin: 0; }
         .turn-over-cards-container { display: flex; gap: 20px; overflow-x: auto; padding: 20px 20px 40px 20px; width: 100%; margin-bottom: 10px; justify-content: flex-start; }
 
         /* HOST: WINNER SCREEN */
-        #view-host-winner { justify-content: center; }
+        #view-host-winner { justify-content: center; align-items: center; }
 
         /* PLAYER BUBBLES */
         .player-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 0 40px; margin-top: 10px; width: 100%;}
@@ -212,6 +201,7 @@
         .mobile-taboo-logo { font-family: var(--font-taboo); font-size: 60px; color: white; line-height: 0.8; margin-bottom: 5px; text-align: center; }
         .player-name-display { font-family: var(--font-main); font-size: 26px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; text-align: center;}
         
+        #view-player-waiting { padding-top: 20px; }
         #view-player-waiting h2 { font-family: var(--font-ui); font-size: 40px; color: var(--text-light); margin-bottom: 5px; text-align: center; }
         .status-text { font-family: var(--font-ui); color: #ddd; font-size: 20px; margin-bottom: 30px; letter-spacing: 0.5px; text-align: center; width: 100%;}
 
@@ -222,14 +212,14 @@
         .icon-option.taken { opacity: 0.2; pointer-events: none; filter: grayscale(100%); }
 
         /* PLAYER TEAMS VIEW */
-        #view-player-teams h2 { font-family: var(--font-ui); font-size: 36px; text-shadow: 0px 4px 0px var(--shadow-color); margin-bottom: 10px; text-align: center; width: 100%;}
+        #view-player-teams h2 { font-family: var(--font-ui); font-size: 36px; text-shadow: 0px 4px 0px var(--shadow-color); margin-bottom: 10px; text-align: center;}
         .btn-join-team { width: 100%; max-width: 400px; padding: 30px; font-family: var(--font-main); font-size: 40px; color: white; border: none; border-radius: 20px; margin-bottom: 20px; cursor: pointer; text-transform: uppercase; box-shadow: 0 8px 0 rgba(0,0,0,0.4); transition: transform 0.1s, box-shadow 0.1s, opacity 0.3s; }
         .btn-join-team:active { transform: translateY(8px); box-shadow: 0 0 0 rgba(0,0,0,0.4); }
         .btn-join-team.blue { background-color: var(--color-blue-pill); }
         .btn-join-team.red { background-color: var(--color-red-pill); }
-        #current-team-display { font-family: var(--font-ui); font-size: 22px; margin-bottom: 30px; color: #fff; text-align: center; width: 100%;}
+        #current-team-display { font-family: var(--font-ui); font-size: 22px; margin-bottom: 30px; color: #fff; text-align: center;}
 
-        /* PLAYER CLUE GIVER INTERFACE (FIXED DIMENSIONS) */
+        /* PLAYER CARD INTERFACE */
         .clue-card-ui { 
             background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 15px 30px rgba(0,0,0,0.6); 
             width: 260px; height: 380px; display: flex; flex-direction: column; margin: 0 auto 30px auto; flex-shrink: 0;
@@ -238,20 +228,22 @@
         .clue-card-ui .header h2 { font-family: var(--font-main); font-size: 32px; color: white; margin: 0; }
         .clue-card-ui .body { padding: 15px; text-align: center; display: flex; flex-direction: column; gap: 10px; flex: 1; justify-content: center;}
         .clue-card-ui .body p { font-family: var(--font-ui); font-size: 20px; color: #111; margin: 0; }
-        
+
+        /* CLUE GIVER BUTTONS */
         .action-buttons { display: flex; justify-content: center; gap: 40px; margin-top: auto; padding-bottom: 20px; width: 100%; max-width: 500px;}
         .btn-action-game { width: 110px; height: 110px; border-radius: 50%; border: none; padding: 0; font-size: 55px; cursor: pointer; box-shadow: 0 8px 0 rgba(0,0,0,0.4); transition: transform 0.1s, opacity 0.2s; display: flex; justify-content: center; align-items: center; font-family: var(--font-ui);}
         .btn-action-game:active { transform: translateY(8px); box-shadow: 0 0 0 rgba(0,0,0,0.4); }
         .btn-action-game.correct { background-color: #00d26a; color: white; }
         .btn-action-game.skip { background-color: #ff9800; color: white; font-size: 50px; }
         
-        /* PLAYER OPPOSITE TEAM */
-        #view-player-opposite { justify-content: center; }
-        .btn-taboo-call { background-color: #ff0055; color: white; border: none; border-radius: 50%; width: 260px; height: 260px; font-family: var(--font-main); font-size: 50px; box-shadow: 0 15px 0 #990033; margin: 0 auto; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s;}
-        .btn-taboo-call:active { transform: translateY(15px); box-shadow: 0 0 0 #990033; }
+        /* PLAYER OPPOSITE TEAM (TABOO BUTTON VIEW) */
+        #view-player-opposite { justify-content: flex-start; padding-top: 20px;}
+        .opp-card { height: 280px; min-height: 280px; margin-bottom: 20px; }
+        .btn-taboo-call { background-color: #ff0055; color: white; border: none; border-radius: 50%; width: 150px; height: 150px; font-family: var(--font-main); font-size: 32px; box-shadow: 0 10px 0 #990033; margin: 0 auto; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; flex-shrink: 0;}
+        .btn-taboo-call:active { transform: translateY(10px); box-shadow: 0 0 0 #990033; }
 
         /* MODAL */
-        #modal-taboo { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.2s;}
+        #modal-taboo { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.2s;}
         #modal-taboo.active { opacity: 1; visibility: visible; pointer-events: auto;}
         .modal-box { background: white; border-radius: 20px; padding: 40px; text-align: center; width: 90%; max-width: 400px; }
         .modal-box h2 { font-family: var(--font-main); font-size: 45px; color: #ff0055; margin: 0 0 10px 0;}
@@ -267,8 +259,23 @@
             .player-name-display { font-size: 20px; margin-bottom: 15px; }
             #phone-status-header { font-size: 35px !important; }
             
-            .btn-taboo-call { width: 220px; height: 220px; font-size: 40px; }
+            /* Clue giver card defaults back to original */
             .clue-card-ui { max-width: 90vw; height: 50vh; min-height: 350px; }
+            
+            /* OPPONENT VIEW ONLY: Shrink card and button so everything fits */
+            #view-player-opposite {
+                justify-content: space-between; 
+                padding: 15px; padding-bottom: 30px;
+                height: 100vh; display: flex; flex-direction: column; align-items: center;
+            }
+            #view-player-opposite .mobile-taboo-logo { font-size: 35px; margin: 0; }
+            #opp-player-name { margin: 0; font-size: 18px; margin-bottom: 5px; }
+            
+            .opp-card { min-height: 0; height: auto; flex: 1; max-height: 45vh; margin-bottom: 10px;}
+            .opp-card .header { min-height: 60px; padding: 10px; }
+            .opp-card .header h2 { font-size: 24px; }
+            
+            .btn-taboo-call { width: 150px; height: 150px; font-size: 30px; margin-top: 10px; flex-shrink: 0; }
             
             .lobby-logo { font-size: 50px; flex: none; margin-bottom: 10px;}
             .lobby-code-box { font-size: 50px; }
@@ -327,11 +334,14 @@
         </section>
 
         <section id="view-player-opposite" class="view-section player-only-view">
-            <div class="mobile-taboo-logo">apeman<br>taboo</div>
-            <div class="player-name-display"></div>
-            <br>
-            <h2 style="font-size: 40px; text-align: center;">LISTEN CLOSELY</h2>
-            <p class="status-text">If they say a taboo word, hit the button!</p>
+            <div class="mobile-taboo-logo" style="margin-bottom: 5px;">apeman<br>taboo</div>
+            <div class="player-name-display" id="opp-player-name" style="margin-bottom: 10px;"></div>
+            
+            <div class="clue-card-ui opp-card">
+                <div class="header"><h2 id="opp-word-display">WORD</h2></div>
+                <div class="body" id="opp-taboo-list"></div>
+            </div>
+            
             <button class="btn-taboo-call" id="btn-call-taboo">TABOO!</button>
         </section>
 
@@ -369,7 +379,6 @@
                 <div class="lobby-center-text" id="lobby-waiting-text">Waiting for players...</div>
                 <button class="btn-primary-action" id="btn-host-start-game">START GAME</button>
             </div>
-            
             <div class="lobby-code-wrapper">
                 <div class="lobby-code-row">
                     <button class="btn-mute" id="btn-mute-lobby" title="Toggle Music">
@@ -520,49 +529,29 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
-
         let myRoomCode = null;
         let myPlayerId = null;
         let myPlayerName = "PLAYER";
         
-        // Strict locks
         let isCountingDown = false;
         let isGameRunning = false;
         let countdownInt = null;
         let gameTimerInt = null;
         
-        // Host Settings State (Carousel Arrays)
-        const roundsOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-        let currentRoundsIdx = 4; // Default to 5
-        let hostTotalRounds = roundsOptions[currentRoundsIdx];
-
-        const skipsOptions = ['∞', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-        let currentSkipsIdx = 0; // Default to ∞
+        let hostTotalRounds = 5; 
         let hostSkipsAllowed = -1;
 
-        // Player Tracking State
         window.mySkipsAllowed = -1;
         let skipsUsedThisRound = 0;
-
-        // DECK PARSING ENGINE WITH FALLBACK
+        
+        // DECK PARSING ENGINE
         window.masterDeck = [];
         
-        const fallbackDummyCards = [
-            { deck: 'people', word: 'TAYLOR SWIFT', taboo: ['Singer', 'Pop', 'Eras', 'Guitar', 'Blonde'] },
-            { deck: 'people', word: 'ELON MUSK', taboo: ['Tesla', 'SpaceX', 'Billionaire', 'Twitter', 'X'] },
-            { deck: 'places', word: 'NEW YORK', taboo: ['City', 'Apple', 'Empire', 'State', 'Times Square'] },
-            { deck: 'places', word: 'PARIS', taboo: ['France', 'Eiffel', 'Tower', 'City', 'Love'] },
-            { deck: 'other', word: 'PIZZA', taboo: ['Cheese', 'Slice', 'Italian', 'Crust', 'Pepperoni'] },
-            { deck: 'other', word: 'IPHONE', taboo: ['Apple', 'Phone', 'Cell', 'Mac', 'Steve Jobs'] }
-        ];
-
         async function fetchAndParseDecks(deckList) {
             let allCards = [];
             for (let deck of deckList) {
                 try {
-                    // Try to load local relative CSV file
-                    const res = await fetch(`./decks/${deck}.csv`);
+                    const res = await fetch(`decks/${deck}.csv?t=${new Date().getTime()}`);
                     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                     const text = await res.text();
                     const lines = text.split(/\r?\n/);
@@ -582,10 +571,8 @@
                     console.error("Failed to load deck from GitHub:", deck, err);
                 }
             }
-            // Smart Fallback
             if (allCards.length === 0) {
-                console.warn("CSV load failed. Falling back to built-in dummy deck to prevent crash.");
-                allCards = fallbackDummyCards.filter(c => deckList.includes(c.deck));
+                allCards.push({ deck: 'error', word: 'CSV LOAD ERROR', taboo: ['Check', 'Your', 'CSV', 'Files', 'Folder']});
             }
             window.masterDeck = allCards;
         }
@@ -603,13 +590,12 @@
             }
 
             let available = window.masterDeck.filter(c => !playedWords.includes(c.word));
-            // If we run out of unique cards, shuffle the whole deck back in
             if (available.length === 0) available = window.masterDeck;
 
             return available[Math.floor(Math.random() * available.length)];
         }
 
-        // AUDIO LOGIC (Infinite Loop @ 63.78s)
+        // AUDIO LOGIC
         const bgMusic = document.getElementById('bg-music');
         bgMusic.volume = 0.5;
         bgMusic.loop = true; 
@@ -639,9 +625,7 @@
             }
         }
 
-        // ==========================================
         // ICON GENERATION LOOP
-        // ==========================================
         const iconGrid = document.getElementById('icon-selection-grid');
         if (iconGrid) {
             for (let i = 1; i <= 17; i++) {
@@ -668,7 +652,7 @@
         // ==========================================
         // HOST LOGIC
         // ==========================================
-        let lastTabooState = false; // Edge trigger for buzz sound
+        let lastTabooState = false;
 
         function hideAllHostViews() { 
             window.scrollTo({top: 0, behavior: 'instant'});
@@ -687,7 +671,6 @@
             document.getElementById('turn-over-team-title').className = isRed ? 'text-red' : 'text-blue';
         }
 
-        // Host Settings Custom Sliders
         document.getElementById('btn-rounds-down').addEventListener('click', () => {
             if(hostTotalRounds > 1) {
                 hostTotalRounds--;
@@ -780,7 +763,7 @@
                         
                         if (state.tabooCall) { 
                             document.getElementById('host-taboo-flash').classList.add('active'); 
-                            if (!lastTabooState) playSFX('sfx-buzz'); // Play once
+                            if (!lastTabooState) playSFX('sfx-buzz'); 
                         } else { 
                             document.getElementById('host-taboo-flash').classList.remove('active'); 
                         }
@@ -897,10 +880,17 @@
             }
         });
 
-        function selectNextPlayer(teamColor) {
+        // FIXED: Exclude the previous clue giver to avoid repeats
+        function selectNextPlayer(teamColor, excludeId = null) {
             return get(ref(db, `rooms/${myRoomCode}/players`)).then(snap => {
                 const players = snap.val() || {};
-                const teamPlayers = Object.entries(players).filter(([id, p]) => p.status === 'online' && p.team === teamColor);
+                let teamPlayers = Object.entries(players).filter(([id, p]) => p.status === 'online' && p.team === teamColor);
+                
+                // If there's more than 1 person on the team, filter out the last person to go
+                if (teamPlayers.length > 1 && excludeId) {
+                    teamPlayers = teamPlayers.filter(([id, p]) => id !== excludeId);
+                }
+                
                 return teamPlayers[Math.floor(Math.random() * teamPlayers.length)];
             });
         }
@@ -909,11 +899,19 @@
             document.getElementById('btn-host-back').style.display = 'none'; 
             
             selectNextPlayer('red').then(randomRed => {
+                if (!randomRed) {
+                    alert("Not enough players online on the Red Team to start!");
+                    document.getElementById('btn-host-back').style.display = 'block';
+                    return;
+                }
+                
                 const initialState = {
                     currentRound: 1, currentTeam: 'red',
                     clueGiverId: randomRed[0], clueGiverName: randomRed[1].name, clueGiverIcon: randomRed[1].icon || 'none',
-                    scores: { red: 0, blue: 0 }, playedCardsThisTurn: {}, tabooCall: false
+                    scores: { red: 0, blue: 0 }, playedCardsThisTurn: {}, tabooCall: false,
+                    lastClueGivers: { red: randomRed[0], blue: null } // Track initial giver
                 };
+                
                 update(ref(db, `rooms/${myRoomCode}`), { status: 'up_first', gameState: initialState }).then(() => {
                     applyHostTheme('red');
                     document.getElementById('up-first-team-name').innerText = "RED TEAM • ROUND 1";
@@ -954,7 +952,6 @@
                             clearInterval(gameTimerInt);
                             isGameRunning = false; 
                             
-                            // PERFECTLY MAP THE STATE UPDATE
                             update(ref(db, `rooms/${myRoomCode}`), { status: 'turn_over' }).then(() => {
                                 get(ref(db, `rooms/${myRoomCode}/gameState`)).then(snap2 => {
                                     const currentState = snap2.val();
@@ -995,6 +992,7 @@
             });
         });
 
+        // FIXED NEXT TURN GLITCH
         document.getElementById('btn-host-next-turn').addEventListener('click', () => {
             get(ref(db, `rooms/${myRoomCode}`)).then(snap => {
                 const room = snap.val();
@@ -1032,7 +1030,19 @@
                     return; 
                 }
                 
-                selectNextPlayer(nextTeam).then(randomPlayer => {
+                // Get the ID of the person who just went for this team
+                const lastClueGiverForNextTeam = state.lastClueGivers ? state.lastClueGivers[nextTeam] : null;
+                
+                selectNextPlayer(nextTeam, lastClueGiverForNextTeam).then(randomPlayer => {
+                    if (!randomPlayer) {
+                        alert(`No online players found for the ${nextTeam.toUpperCase()} team!`);
+                        document.getElementById('btn-host-back').style.display = 'block';
+                        return;
+                    }
+                    
+                    let updatedLastClueGivers = state.lastClueGivers || {red: null, blue: null};
+                    updatedLastClueGivers[nextTeam] = randomPlayer[0];
+                    
                     update(ref(db, `rooms/${myRoomCode}`), { 
                         status: 'up_first',
                         'gameState/currentTeam': nextTeam,
@@ -1040,7 +1050,8 @@
                         'gameState/clueGiverId': randomPlayer[0],
                         'gameState/clueGiverName': randomPlayer[1].name,
                         'gameState/clueGiverIcon': randomPlayer[1].icon || 'none',
-                        'gameState/tabooCall': false
+                        'gameState/tabooCall': false,
+                        'gameState/lastClueGivers': updatedLastClueGivers
                     }).then(() => {
                         applyHostTheme(nextTeam);
                         document.getElementById('up-first-team-name').innerText = `${nextTeam.toUpperCase()} TEAM • ROUND ${nextRound}`;
@@ -1165,15 +1176,19 @@
                     document.getElementById('btn-clue-skip').style.opacity = '1';
                     document.getElementById('btn-clue-skip').style.pointerEvents = 'auto';
 
+                    if(room.gameState && room.gameState.activeCard) {
+                        document.getElementById('clue-word-display').innerText = room.gameState.activeCard.word;
+                        document.getElementById('opp-word-display').innerText = room.gameState.activeCard.word;
+                        
+                        let tabooHtml = '';
+                        room.gameState.activeCard.taboo.forEach(w => tabooHtml += `<p>${w}</p>`);
+                        
+                        document.getElementById('clue-taboo-list').innerHTML = tabooHtml;
+                        document.getElementById('opp-taboo-list').innerHTML = tabooHtml;
+                    }
+
                     if(room.gameState && room.gameState.clueGiverId === myPlayerId) {
                         hideAllPlayerViews(); document.getElementById('view-player-clue-giver').classList.add('active');
-
-                        if(room.gameState.activeCard) {
-                            document.getElementById('clue-word-display').innerText = room.gameState.activeCard.word;
-                            let tabooHtml = '';
-                            room.gameState.activeCard.taboo.forEach(w => tabooHtml += `<p>${w}</p>`);
-                            document.getElementById('clue-taboo-list').innerHTML = tabooHtml;
-                        }
                     } else if (room.players[myPlayerId] && room.players[myPlayerId].team !== room.gameState.currentTeam) {
                         hideAllPlayerViews(); document.getElementById('view-player-opposite').classList.add('active');
                     } else {
@@ -1195,7 +1210,6 @@
                 }
             });
 
-            // LISTEN TO TABOO CALLS
             onValue(ref(db, `rooms/${codeInput}/gameState/tabooCall`), (snap) => {
                 const called = snap.val();
                 get(ref(db, `rooms/${codeInput}/gameState`)).then(stateSnap => {
@@ -1235,7 +1249,6 @@
                 const prevCard = state.activeCard;
                 prevCard.status = statusVal;
                 
-                // Draw next dynamic card
                 const nextCard = drawCard(state);
 
                 const playedRef = push(ref(db, `rooms/${myRoomCode}/gameState/playedCardsThisTurn`));
@@ -1324,7 +1337,6 @@
                     }
                 }).catch((error) => { console.error(error); alert("Connection Error"); window.location.href='index.html'; });
             } else {
-                // If they don't have session data, kick them out
                 window.location.href = 'index.html';
             }
         }
