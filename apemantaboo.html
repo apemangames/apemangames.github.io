@@ -288,7 +288,7 @@
 </head>
 <body>
 
-    <audio id="bg-music" src="audio/Sponge.wav" preload="auto" loop></audio>
+    <audio id="bg-music" src="audio/Sponge.mp3" preload="auto" loop></audio>
     <audio id="sfx-click" src="audio/click.mp3" preload="auto"></audio>
     <audio id="sfx-buzz" src="audio/buzz.mp3" preload="auto"></audio>
 
@@ -532,6 +532,24 @@
         let myRoomCode = null;
         let myPlayerId = null;
         let myPlayerName = "PLAYER";
+        let wakeLock = null;
+
+        // Keep phone screen awake during gameplay
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => { wakeLock = null; });
+                }
+            } catch (e) { console.log('Wake lock failed:', e); }
+        }
+        function releaseWakeLock() {
+            if (wakeLock) { wakeLock.release(); wakeLock = null; }
+        }
+        // Re-acquire wake lock when tab becomes visible again
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && isGameRunning) requestWakeLock();
+        });
         
         let isCountingDown = false;
         let isGameRunning = false;
@@ -880,18 +898,22 @@
             }
         });
 
-        // FIXED: Exclude the previous clue giver to avoid repeats
-        function selectNextPlayer(teamColor, excludeId = null) {
+        // Round-robin clue giver selection — cycles through team in order
+        function selectNextPlayer(teamColor, lastGiverId = null) {
             return get(ref(db, `rooms/${myRoomCode}/players`)).then(snap => {
                 const players = snap.val() || {};
-                let teamPlayers = Object.entries(players).filter(([id, p]) => p.status === 'online' && p.team === teamColor);
-                
-                // If there's more than 1 person on the team, filter out the last person to go
-                if (teamPlayers.length > 1 && excludeId) {
-                    teamPlayers = teamPlayers.filter(([id, p]) => id !== excludeId);
-                }
-                
-                return teamPlayers[Math.floor(Math.random() * teamPlayers.length)];
+                // Sort by player ID for consistent ordering across all clients
+                let teamPlayers = Object.entries(players)
+                    .filter(([id, p]) => p.team === teamColor)
+                    .sort(([a], [b]) => a.localeCompare(b));
+
+                if (teamPlayers.length === 0) return null;
+
+                if (!lastGiverId) return teamPlayers[0];
+
+                const lastIndex = teamPlayers.findIndex(([id]) => id === lastGiverId);
+                const nextIndex = (lastIndex + 1) % teamPlayers.length;
+                return teamPlayers[nextIndex];
             });
         }
 
@@ -926,8 +948,9 @@
         });
 
         document.getElementById('btn-host-ready').addEventListener('click', () => {
-            if (isGameRunning) return; 
+            if (isGameRunning) return;
             isGameRunning = true;
+            requestWakeLock();
             
             get(ref(db, `rooms/${myRoomCode}/gameState`)).then(snap => {
                 const state = snap.val();
@@ -1144,6 +1167,7 @@
                 }
 
                 if (status === 'starting') {
+                    requestWakeLock();
                     hideAllPlayerViews(); document.getElementById('view-player-waiting').classList.add('active');
                     document.getElementById('player-status-msg').innerText = "Game is starting! Look at the main screen...";
                     document.getElementById('icon-selection-grid').style.opacity = '0.5';
@@ -1203,11 +1227,24 @@
                     document.getElementById('phone-status-header').style.color = "white";
                     document.getElementById('phone-status-sub').innerText = "Look at the main screen!";
                 } else if (status === 'game_over') {
+                    releaseWakeLock();
                     hideAllPlayerViews(); document.getElementById('view-player-status').classList.add('active');
                     document.getElementById('phone-status-header').innerText = "GAME OVER!";
                     document.getElementById('phone-status-header').style.color = "white";
                     document.getElementById('phone-status-sub').innerText = "Look at the TV!";
                 }
+            });
+
+            // Live update taboo words for opposing team when card changes
+            onValue(ref(db, `rooms/${codeInput}/gameState/activeCard`), (snap) => {
+                const card = snap.val();
+                if (!card) return;
+                document.getElementById('clue-word-display').innerText = card.word;
+                document.getElementById('opp-word-display').innerText = card.word;
+                let tabooHtml = '';
+                card.taboo.forEach(w => tabooHtml += `<p>${w}</p>`);
+                document.getElementById('clue-taboo-list').innerHTML = tabooHtml;
+                document.getElementById('opp-taboo-list').innerHTML = tabooHtml;
             });
 
             onValue(ref(db, `rooms/${codeInput}/gameState/tabooCall`), (snap) => {
