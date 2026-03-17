@@ -6,7 +6,6 @@
     <title>APEMAN Games</title>
     
     <link rel="icon" type="image/png" href="images/favicon.png">
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Outfit:wght@400&display=swap" rel="stylesheet">
@@ -20,6 +19,7 @@
             --text-light: #ffffff; --text-dim: #777286;
             --font-main: 'Gulfs Display', 'Bungee', cursive;
             --font-taboo: 'taboo', 'Bungee', cursive;
+            --font-liarz: 'Times New Roman MT Condensed', 'Times New Roman', serif;
             --font-ui: 'Outfit', sans-serif;
             --transition-speed: 0.4s;
         }
@@ -34,7 +34,7 @@
         }
 
         /* HEADER & TABS */
-        header { text-align: center; margin-top: 50px; width: 100%; z-index: 10; transition: opacity var(--transition-speed) ease; }
+        header { text-align: center; margin-top: 50px; width: 100%; z-index: 10; transition: opacity var(--transition-speed) ease; flex-shrink: 0;}
         h1 { font-size: 56px; margin: 0; letter-spacing: 2px; text-shadow: 2px 2px 0px rgba(0,0,0,0.5); }
         .tabs { margin-top: 20px; display: flex; justify-content: center; gap: 40px; }
         .tab { font-size: 32px; color: var(--text-dim); cursor: pointer; transition: color 0.3s ease; }
@@ -57,15 +57,29 @@
         .game-grid { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; width: 100%; max-width: 1000px;}
         .game-card { width: 400px; max-width: 100%; height: 350px; border-radius: 20px; overflow: hidden; cursor: pointer; position: relative; background-color: #231b2e; display: flex; flex-direction: column; transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .game-card:hover { transform: scale(1.03) translateY(-5px); box-shadow: 0px 10px 25px rgba(0,0,0,0.5); }
+        
         .card-image-taboo { height: 65%; background-image: url('images/taboo-thumbnail.png'); background-size: cover; background-position: center; }
-        .card-footer { height: 35%; background-color: #231b2e; padding: 20px; text-align: left; font-family: 'Helvetica', sans-serif; }
-        .card-footer h3 { font-family: var(--font-taboo); font-size: 32px; margin: 0 0 5px 0; }
-        .card-footer p { margin: 0; color: #ccc; font-size: 16px; margin-top: 5px; }
+        .card-image-liarz { height: 65%; background-image: url('images/liarz-thumbnail.png'); background-size: cover; background-position: center; }
+        
+        .card-footer { height: 35%; background-color: #231b2e; padding: 20px; text-align: left; font-family: 'Helvetica', sans-serif; display: flex; flex-direction: column; justify-content: center; }
+        .card-footer.taboo h3 { font-family: var(--font-taboo); font-size: 32px; margin: 0 0 5px 0; }
+        .card-footer.liarz h3 { font-family: var(--font-liarz); font-style: italic; font-size: 38px; margin: 0 0 5px 0; letter-spacing: 1px;}
+        .card-footer p { margin: 0; color: #ccc; font-size: 16px; margin-top: 5px; font-family: var(--font-ui);}
 
         @media (max-width: 768px) {
             h1 { font-size: 40px; margin-top: 10px; } header { margin-top: 20px; } #tab-host { display: none; } .tabs { gap: 0; }
             .pill-input { font-size: 22px; padding: 18px; width: 90%; } .mobile-notice { display: block; }
         }
+
+        .card-footer.liarz h3 { 
+            font-family: var(--font-liarz); 
+            font-style: italic; 
+            font-size: 45px; 
+            margin: 0 0 5px 0; 
+            letter-spacing: -0.039em; 
+            text-shadow: 4px 4px 0px #000;
+        }
+
     </style>
 </head>
 <body>
@@ -91,9 +105,17 @@
             <div class="game-grid">
                 <div class="game-card" id="btn-start-taboo" onclick="window.location.href='apemantaboo.html?host=true'">
                     <div class="card-image-taboo"></div>
-                    <div class="card-footer">
+                    <div class="card-footer taboo">
                         <h3>apeman taboo</h3>
-                        <p>Our very own version of Taboo.</p>
+                        <p>Taboo, but personalized.</p>
+                    </div>
+                </div>
+                
+                <div class="game-card" id="btn-start-liarz" onclick="window.location.href='liarz.html?host=true'">
+                    <div class="card-image-liarz"></div>
+                    <div class="card-footer liarz">
+                        <h3>Liarz!</h3>
+                        <p>Spot the liar.</p>
                     </div>
                 </div>
             </div>
@@ -149,8 +171,11 @@
                 sessionStorage.setItem('apeman_room', codeInput);
                 sessionStorage.setItem('apeman_name', nameInput);
 
+                // DYNAMIC ROUTING TO THE CORRECT GAME
                 if (roomData.game === 'taboo') {
                     window.location.href = 'apemantaboo.html';
+                } else if (roomData.game === 'liarz') {
+                    window.location.href = 'liarz.html';
                 } else {
                     errorDiv.innerText = "Game mode not recognized."; errorDiv.style.display = 'block';
                 }
