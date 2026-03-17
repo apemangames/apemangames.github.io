@@ -473,6 +473,22 @@
         let myRoomCode = null;
         let myPlayerId = null;
         let myPlayerName = "PLAYER";
+        let wakeLock = null;
+
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => { wakeLock = null; });
+                }
+            } catch (e) { console.log('Wake lock failed:', e); }
+        }
+        function releaseWakeLock() {
+            if (wakeLock) { wakeLock.release(); wakeLock = null; }
+        }
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && myRoomCode) requestWakeLock();
+        });
 
         // Validate if Host Mode is active globally
         const urlParams = new URLSearchParams(window.location.search);
@@ -1134,6 +1150,7 @@
                     document.getElementById('phone-status-header').innerText = "GET READY";
                     document.getElementById('phone-status-sub').innerText = "Host is setting up the game...";
                 } else if (status === 'playing') {
+                    requestWakeLock();
                     const state = room.gameState;
                     if(!state) return;
 
@@ -1217,6 +1234,7 @@
                         document.getElementById('phone-status-sub').innerText = "Look at the TV!";
                     }
                 } else if (status === 'game_over') {
+                    releaseWakeLock();
                     hideAllPlayerViews(); document.getElementById('view-player-status').classList.add('active');
                     document.getElementById('phone-status-header').innerText = "GAME OVER";
                     document.getElementById('phone-status-sub').innerText = "Look at the TV for final scores!";
