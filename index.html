@@ -18,9 +18,11 @@
         :root {
             --bg-color: #0b021a; --input-bg: #231b2e; --shadow-color: #3b0000; 
             --text-light: #ffffff; --text-dim: #777286;
+            --uno-yellow: #f8da28;
             --font-main: 'Gulfs Display', 'Bungee', cursive;
             --font-taboo: 'taboo', 'Bungee', cursive;
             --font-liarz: 'Times New Roman MT Condensed', 'Times New Roman', serif;
+            --font-uno: 'Helvetica', Arial, sans-serif;
             --font-ui: 'Outfit', sans-serif;
             --transition-speed: 0.4s;
         }
@@ -59,11 +61,14 @@
         .game-card { width: 400px; max-width: 100%; height: 350px; border-radius: 20px; overflow: hidden; cursor: pointer; position: relative; background-color: #231b2e; display: flex; flex-direction: column; transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .game-card:hover { transform: scale(1.03) translateY(-5px); box-shadow: 0px 10px 25px rgba(0,0,0,0.5); }
         
-        .card-image-taboo { height: 65%; background-image: url('images/taboo-thumbnail.png'); background-size: cover; background-position: center; }
-        .card-image-liarz { height: 65%; background-image: url('images/liarz-thumbnail.png'); background-size: cover; background-position: center; }
-        .card-image-chess { height: 65%; background-image: url('images/chess-thumbnail.png'); background-size: cover; background-position: center; }
+        .card-image { height: 65%; background-size: cover; background-position: center; }
+        .card-image.taboo { background-image: url('images/taboo-thumbnail.png'); }
+        .card-image.liarz { background-image: url('images/liarz-thumbnail.png'); }
+        .card-image.chess { background-image: url('images/chess-thumbnail.png'); }
+        .card-image.uno { background-image: url('images/UNO-thumbnail.png'); }
         
         .card-footer { height: 35%; background-color: #231b2e; padding: 20px; text-align: left; font-family: 'Helvetica', sans-serif; display: flex; flex-direction: column; justify-content: center; }
+        
         .card-footer.taboo h3 { font-family: var(--font-taboo); font-size: 32px; margin: 0 0 5px 0; }
         
         .card-footer.liarz h3 { 
@@ -74,13 +79,42 @@
             letter-spacing: -0.039em; 
             text-shadow: 4px 4px 0px #000;
         }
-
+        
         .card-footer.chess h3 { 
+            color: white;
             font-family: var(--font-liarz); 
-            font-size: 40px; 
+            font-size: 45px; 
+            font-weight: bold !important;
             margin: 0 0 5px 0; 
             letter-spacing: 2px;
-            color: white;
+            text-transform: uppercase;
+            -webkit-text-stroke: 0; 
+            text-shadow: 
+                -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+                -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+                5px 5px 0px #000;
+        }
+
+        .card-footer.uno h3 { 
+            color: var(--uno-yellow);
+            font-family: var(--font-uno);
+            font-weight: 900 !important;
+            font-size: 45px;
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            -webkit-text-stroke: 1.5px white; 
+            text-shadow: 
+                -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000,
+                0px 2px 0 #000, 0px -2px 0 #000, 2px 0px 0 #000, -2px 0px 0 #000,
+                -2px 2px 0 #000, -3px 3px 0 #000, -4px 4px 0 #000, -5px 5px 0 #000, -6px 6px 0 #000,
+                -3px 2px 0 #000, -4px 3px 0 #000, -5px 4px 0 #000, -6px 5px 0 #000,
+                -2px 3px 0 #000, -3px 4px 0 #000, -4px 5px 0 #000, -5px 6px 0 #000;
+            filter: 
+                drop-shadow(1.5px 0px 0px #fff) 
+                drop-shadow(-1.5px 0px 0px #fff) 
+                drop-shadow(0px 1.5px 0px #fff) 
+                drop-shadow(0px -1.5px 0px #fff);
         }
 
         .card-footer p { margin: 0; color: #ccc; font-size: 16px; margin-top: 5px; font-family: var(--font-ui);}
@@ -89,7 +123,6 @@
             h1 { font-size: 40px; margin-top: 10px; } header { margin-top: 20px; } #tab-host { display: none; } .tabs { gap: 0; }
             .pill-input { font-size: 22px; padding: 18px; width: 90%; } .mobile-notice { display: block; }
         }
-
     </style>
 </head>
 <body>
@@ -113,29 +146,39 @@
 
         <section id="view-host" class="view-section">
             <div class="game-grid">
-                <div class="game-card" id="btn-start-taboo" onclick="window.location.href='apemantaboo.html?host=true'">
-                    <div class="card-image-taboo"></div>
+                
+                <div class="game-card" onclick="window.location.href='apemantaboo.html?host=true'">
+                    <div class="card-image taboo"></div>
                     <div class="card-footer taboo">
                         <h3>apeman taboo</h3>
-                        <p>Our very own Taboo.</p>
+                        <p>Our very own taboo.</p>
                     </div>
                 </div>
                 
-                <div class="game-card" id="btn-start-liarz" onclick="window.location.href='liarz.html?host=true'">
-                    <div class="card-image-liarz"></div>
+                <div class="game-card" onclick="window.location.href='liarz.html?host=true'">
+                    <div class="card-image liarz"></div>
                     <div class="card-footer liarz">
                         <h3>Liarz!</h3>
                         <p>Spot the liar.</p>
                     </div>
                 </div>
 
-                <div class="game-card" id="btn-start-chess" onclick="window.location.href='chess.html?host=true'">
-                    <div class="card-image-chess"></div>
+                <div class="game-card" onclick="window.location.href='chess.html?host=true'">
+                    <div class="card-image chess"></div>
                     <div class="card-footer chess">
                         <h3>CHESS</h3>
                         <p>A classic.</p>
                     </div>
                 </div>
+
+                <div class="game-card" onclick="window.location.href='uno.html?host=true'">
+                    <div class="card-image uno"></div>
+                    <div class="card-footer uno">
+                        <h3>UNO</h3>
+                        <p>A game we all know and love.</p>
+                    </div>
+                </div>
+
             </div>
         </section>
     </div>
@@ -190,15 +233,11 @@
                 sessionStorage.setItem('apeman_name', nameInput);
 
                 // DYNAMIC ROUTING TO THE CORRECT GAME
-                if (roomData.game === 'taboo') {
-                    window.location.href = 'apemantaboo.html';
-                } else if (roomData.game === 'liarz') {
-                    window.location.href = 'liarz.html';
-                } else if (roomData.game === 'chess') {
-                    window.location.href = 'chess.html';
-                } else {
-                    errorDiv.innerText = "Game mode not recognized."; errorDiv.style.display = 'block';
-                }
+                if (roomData.game === 'taboo') window.location.href = 'apemantaboo.html';
+                else if (roomData.game === 'liarz') window.location.href = 'liarz.html';
+                else if (roomData.game === 'chess') window.location.href = 'chess.html';
+                else if (roomData.game === 'uno') window.location.href = 'uno.html';
+                else { errorDiv.innerText = "Game mode not recognized."; errorDiv.style.display = 'block'; }
             }).catch(e => {
                 console.error(e); errorDiv.innerText = "Connection error."; errorDiv.style.display = 'block';
             });
