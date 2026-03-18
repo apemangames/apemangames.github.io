@@ -101,8 +101,9 @@
         .btn-mute svg { width: 28px; height: 28px; fill: var(--uno-yellow); }
         .btn-mute:hover { transform: scale(1.05); }
 
-        .player-mute-btn { width: 45px; height: 45px; }
-        .player-mute-btn svg { width: 22px; height: 22px; }
+        .pill-input { width: 100%; background: rgba(0,0,0,0.6); border: 3px solid var(--uno-yellow); color: white; font-family: var(--font-uno); font-size: 35px; text-align: center; padding: 15px; border-radius: 15px; box-shadow: 0px 6px 0px black; margin-bottom: 10px; outline: none; transition: transform 0.1s; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;}
+        .pill-input::placeholder { color: rgba(255, 255, 255, 0.4); }
+        .pill-input:focus { transform: translateY(2px); box-shadow: 0px 4px 0px black; }
 
         /* HOST LOBBY & HEADER (Standardized) */
         .lobby-top-bar { 
@@ -165,14 +166,14 @@
 
         /* PLAYER MOBILE UI */
         #view-player-playing { justify-content: space-between; }
-        .player-top-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 15px; border: 2px solid var(--uno-yellow);}
+        .player-top-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 15px; border: 2px solid var(--uno-yellow);}
         .status-msg { font-size: 26px; color: white;}
         .top-card-mini { height: 100px; aspect-ratio: 682 / 1052; object-fit: contain; border-radius: 6px; filter: drop-shadow(-2px 4px 4px rgba(0,0,0,0.5));}
 
         /* UNO & CATCH BUTTONS */
         .player-middle-section { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; width: 100%; gap: 15px; max-width: 400px;}
         .action-row { display: flex; gap: 15px; width: 100%; }
-        .btn-uno { flex: 1; background: var(--uno-yellow); font-size: 24px; padding: 10px; border: 3px solid black; border-radius: 15px; box-shadow: -3px 4px 0 black;}
+        .btn-uno { flex: 1; background: var(--uno-yellow); font-size: 24px; padding: 10px; border: 3px solid black; border-radius: 15px; box-shadow: -3px 4px 0 black; color: black;}
         .btn-catch { flex: 1; background: var(--uno-red); color: white; font-size: 24px; padding: 10px; border: 3px solid black; border-radius: 15px; box-shadow: -3px 4px 0 black;}
 
         /* BIG, BOTTOM-ANCHORED PHYSICS HAND */
@@ -230,7 +231,7 @@
         
         <section id="view-player-waiting" class="view-section player-only-view">
             <div class="uno-text" style="font-size: 100px; margin-bottom: 20px;">UNO</div>
-            <h2 class="uno-text" style="font-size: 40px; color: white; -webkit-text-stroke:0; text-shadow:none; filter:none; letter-spacing: 2px;">HANG TIGHT</h2>
+            <h2 class="uno-text-simple" style="font-size: 40px; color: white; -webkit-text-stroke:0; text-shadow:none; filter:none; letter-spacing: 2px;">HANG TIGHT</h2>
             <p style="color: white; font-size: 20px; text-align: center;">Waiting for host to deal the cards...</p>
         </section>
 
@@ -238,13 +239,7 @@
             
             <div class="player-top-bar">
                 <span class="status-msg" id="player-turn-msg" style="font-weight: bold;">WAITING...</span>
-                <div style="display: flex; gap: 15px; align-items: center;">
-                    <button class="btn-mute btn-mute-toggle player-mute-btn" title="Toggle Audio">
-                        <svg class="icon-sound-on" width="24" height="24" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-                        <svg class="icon-sound-off" width="24" height="24" viewBox="0 0 24 24" style="display:none;"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
-                    </button>
-                    <img src="UNO Cards/uno.png" id="mobile-top-card" class="top-card-mini">
-                </div>
+                <img src="UNO Cards/uno.png" id="mobile-top-card" class="top-card-mini">
             </div>
 
             <div class="player-middle-section">
@@ -265,7 +260,7 @@
 
         <section id="view-player-game-over" class="view-section player-only-view" style="justify-content: center;">
             <div class="uno-text" style="font-size: 100px; margin-bottom: 20px;">UNO</div>
-            <h2 class="uno-text" style="font-size: 50px; color: white; -webkit-text-stroke:0; text-shadow:none; filter:none; letter-spacing: 2px;">GAME OVER</h2>
+            <h2 class="uno-text-simple" style="font-size: 50px; color: white; -webkit-text-stroke:0; text-shadow:none; filter:none; letter-spacing: 2px;">GAME OVER</h2>
             <p style="color: white; font-size: 20px; text-align: center;">Look at the TV to see who won!</p>
         </section>
 
@@ -331,18 +326,22 @@
 
     <div id="view-host-game-over" class="host-fullscreen-view" style="justify-content: center; background: rgba(0,0,0,0.9);">
         <div class="uno-text" style="font-size: 150px; margin-bottom: 20px;">UNO!</div>
-        <div class="uno-text" style="font-size: 80px; color: white; -webkit-text-stroke:0; filter:none; text-shadow: none; margin-bottom: 40px; letter-spacing: 2px;" id="winner-display">PLAYER WINS!</div>
+        <div class="uno-text-simple" style="font-size: 80px; color: white; -webkit-text-stroke:0; filter:none; text-shadow: none; margin-bottom: 40px; letter-spacing: 2px;" id="winner-display">PLAYER WINS!</div>
         
         <button class="btn-primary" id="btn-play-again" style="font-size: 35px;">PLAY AGAIN</button>
     </div>
 
+    <div id="host-notification-overlay" class="modal-overlay" style="background: transparent; pointer-events: none; justify-content: flex-start; padding-top: 150px; z-index: 999;">
+        <div class="uno-text" id="host-notification-msg" style="font-size: 80px; text-align: center; line-height: 1.1; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));">MSG</div>
+    </div>
+
     <div id="custom-alert-overlay" class="modal-overlay">
-        <div class="uno-text-simple" id="custom-alert-msg" style="font-size: 50px; text-align: center; line-height: 1.1; color: white;">MSG</div>
+        <div class="uno-text-simple" id="custom-alert-msg" style="font-size: 40px; text-align: center; line-height: 1.2; color: white; max-width: 90%;">MSG</div>
         <button class="btn-primary" style="margin-top: 40px; background: white;" onclick="document.getElementById('custom-alert-overlay').classList.remove('active')">OK</button>
     </div>
 
     <div id="color-picker-overlay" class="modal-overlay">
-        <div class="uno-text" style="font-size: 50px; text-align: center; line-height: 1; padding: 0 20px;">CHOOSE COLOR</div>
+        <div class="uno-text-simple" style="font-size: 50px; text-align: center; line-height: 1; padding: 0 20px;">CHOOSE COLOR</div>
         <div class="color-grid">
             <div class="color-btn c-red" data-color="red"></div>
             <div class="color-btn c-blue" data-color="blue"></div>
@@ -352,7 +351,7 @@
     </div>
 
     <div id="catch-uno-overlay" class="modal-overlay">
-        <div class="uno-text" style="font-size: 50px;">CATCH WHO?</div>
+        <div class="uno-text-simple" style="font-size: 50px;">CATCH WHO?</div>
         <div class="catch-list" id="catch-uno-list">
             </div>
         <button class="btn-primary" style="margin-top:30px; background: white;" onclick="document.getElementById('catch-uno-overlay').classList.remove('active')">CANCEL</button>
@@ -388,10 +387,13 @@
 
         let globalRoomData = null;
         let pendingWildCardIndex = null;
-        let isActionLocked = false; // Global Action Lock to prevent double-clicks
+        let isActionLocked = false; 
         
         let prevTopCardId = -1;
         let prevDeckLength = -1;
+        
+        let lastUnoTime = 0;
+        let lastCaughtTime = 0;
 
         // ==========================================
         // CUSTOM ALERTS
@@ -419,7 +421,6 @@
             }
         }
 
-        // Global Mute Toggle Listeners
         document.querySelectorAll('.btn-mute-toggle').forEach(btn => {
             btn.addEventListener('click', () => {
                 isMuted = !isMuted;
@@ -429,7 +430,6 @@
             });
         });
 
-        // Add click sound logic to buttons
         document.querySelectorAll('.btn-primary, .color-btn, .btn-uno, .btn-catch').forEach(btn => {
             btn.addEventListener('click', () => playAudio(sfxClick));
         });
@@ -440,7 +440,6 @@
             }
         }
 
-        // Instant Host Boot
         if (window.isHostMode) {
             document.getElementById('view-lobby').classList.add('active');
             bgMusic.play().catch(e => console.log("Audio autoplay blocked by browser."));
@@ -488,7 +487,7 @@
         }
 
         // ==========================================
-        // HOST ANIMATION LOGIC (Wooshes only here)
+        // HOST ANIMATION LOGIC (Wooshes ONLY here)
         // ==========================================
         function triggerDrawAnimation() {
             playAudio(sfxWoosh);
@@ -595,6 +594,15 @@
                         const topCard = state.discardPile[state.discardPile.length - 1];
                         const currentDeckLength = state.deck ? state.deck.length : 0;
 
+                        // Check for UNO Call Visual
+                        if (state.lastUnoCall && state.lastUnoCall.time !== lastUnoTime) {
+                            lastUnoTime = state.lastUnoCall.time;
+                            const notif = document.getElementById('host-notification-overlay');
+                            document.getElementById('host-notification-msg').innerText = `${state.lastUnoCall.name} CALLED UNO!`;
+                            notif.classList.add('active');
+                            setTimeout(() => notif.classList.remove('active'), 3000);
+                        }
+
                         // Check for Play Animation
                         if (prevTopCardId !== -1 && prevTopCardId !== topCard.id) {
                             triggerPlayAnimation(topCard.img);
@@ -646,6 +654,7 @@
         }
 
         document.getElementById('btn-host-start').addEventListener('click', () => {
+            playAudio(sfxClick);
             const players = globalRoomData.players || {};
             const onlinePlayerIds = Object.keys(players).filter(id => players[id].status === 'online');
             
@@ -668,11 +677,13 @@
                 hands: hands,
                 turnOrder: shuffle([...onlinePlayerIds]),
                 turnIndex: 0,
+                turnCount: 0,
                 direction: 1,
                 currentColor: firstCard.color,
                 pendingDraw: 0,
                 hasDrawn: false,
-                calledUno: {}
+                calledUno: {},
+                reachedOneCardTurn: {}
             };
 
             update(ref(db, `rooms/${myRoomCode}`), { status: 'playing', gameState: initialState }).then(() => {
@@ -681,6 +692,7 @@
         });
 
         document.getElementById('btn-play-again').addEventListener('click', () => {
+            playAudio(sfxClick);
             prevTopCardId = -1;
             prevDeckLength = -1;
             update(ref(db, `rooms/${myRoomCode}`), { status: 'waiting', gameState: null }).then(() => {
@@ -701,7 +713,6 @@
                 const room = snap.val(); if(!room) return;
                 globalRoomData = room;
                 
-                // Unlock actions whenever the database syncs a new turn state
                 isActionLocked = false; 
 
                 const players = room.players || {};
@@ -721,6 +732,14 @@
                     const isMyTurn = state.turnIndex === myTurnIndex;
                     const pendingDrawAmount = state.pendingDraw || 0;
                     const hasDrawn = state.hasDrawn || false;
+
+                    // Victim Notification checking
+                    if (state.lastCaught && state.lastCaught.targetId === myPlayerId) {
+                        if (state.lastCaught.time !== lastCaughtTime) {
+                            lastCaughtTime = state.lastCaught.time;
+                            showCustomAlert("YOU WERE CAUGHT NOT SAYING UNO!\n\n+4 CARDS");
+                        }
+                    }
 
                     document.getElementById('mobile-top-card').src = `UNO Cards/${topCard.img}`;
                     
@@ -793,25 +812,38 @@
             });
         }
 
-        // --- UNO BUTTONS ---
+        // --- UNO BUTTONS (Fixed DB Updating) ---
         document.getElementById('btn-call-uno').addEventListener('click', () => {
-            const state = globalRoomData.gameState;
-            if (!state) return;
-            const myHand = state.hands[myPlayerId] || [];
+            if (!globalRoomData || !globalRoomData.gameState) return;
             
-            // Only allow UNO to be called if they have 1 card left
-            if (myHand.length > 1) {
-                showCustomAlert("YOU HAVE MORE THAN ONE CARD LEFT!");
-                return;
-            }
-            
-            update(ref(db, `rooms/${myRoomCode}/gameState/calledUno/${myPlayerId}`), true);
-            const msgEl = document.getElementById('player-turn-msg');
-            msgEl.innerText = "UNO CALLED!";
-            msgEl.style.color = "var(--uno-green)";
+            get(child(ref(db), `rooms/${myRoomCode}/gameState`)).then(snap => {
+                const state = snap.val();
+                if (!state) return;
+                const myHand = state.hands[myPlayerId] || [];
+                
+                if (myHand.length > 1) {
+                    showCustomAlert("YOU HAVE MORE THAN ONE CARD LEFT!");
+                    return;
+                }
+                
+                playAudio(sfxClick);
+
+                // Correct object-based Firebase update
+                let updates = {};
+                updates[`gameState/calledUno/${myPlayerId}`] = true;
+                updates['gameState/lastUnoCall'] = { name: myPlayerName, time: Date.now() };
+
+                update(ref(db, `rooms/${myRoomCode}`), updates).then(() => {
+                    showCustomAlert("UNO!");
+                    const msgEl = document.getElementById('player-turn-msg');
+                    msgEl.innerText = "UNO CALLED!";
+                    msgEl.style.color = "var(--uno-green)";
+                }).catch(e => console.error("UNO call failed", e));
+            });
         });
 
         document.getElementById('btn-catch-uno').addEventListener('click', () => {
+            playAudio(sfxClick);
             const players = globalRoomData.players;
             const catchList = document.getElementById('catch-uno-list');
             catchList.innerHTML = '';
@@ -834,24 +866,34 @@
             document.getElementById('catch-uno-overlay').classList.remove('active');
             get(ref(db, `rooms/${myRoomCode}/gameState`)).then(snap => {
                 const state = snap.val();
-                if (state.hands[targetId].length === 1 && !state.calledUno?.[targetId]) {
-                    // CAUGHT! Force Draw 4
-                    let newDeck = [...state.deck];
-                    let newDiscard = [...state.discardPile];
-                    let targetHand = [...state.hands[targetId]];
-                    
-                    for(let i=0; i<4; i++) {
-                        if(newDeck.length === 0) recycleDiscard(newDeck, newDiscard);
-                        if(newDeck.length > 0) targetHand.push(newDeck.pop());
+                const targetHand = state.hands[targetId] || [];
+                const hasCalled = state.calledUno && state.calledUno[targetId];
+                const safeTurn = (state.reachedOneCardTurn && state.reachedOneCardTurn[targetId]) || 0;
+
+                if (targetHand.length === 1 && !hasCalled) {
+                    if (state.turnCount <= safeTurn) {
+                        showCustomAlert("THEY STILL HAVE TIME TO CALL IT!");
+                    } else {
+                        // CAUGHT! Force Draw 4
+                        let newDeck = [...state.deck];
+                        let newDiscard = [...state.discardPile];
+                        let newTargetHand = [...targetHand];
+                        
+                        for(let i=0; i<4; i++) {
+                            if(newDeck.length === 0) recycleDiscard(newDeck, newDiscard);
+                            if(newDeck.length > 0) newTargetHand.push(newDeck.pop());
+                        }
+                        
+                        update(ref(db, `rooms/${myRoomCode}`), {
+                            'gameState/deck': newDeck,
+                            'gameState/discardPile': newDiscard,
+                            [`gameState/hands/${targetId}`]: newTargetHand,
+                            [`gameState/calledUno/${targetId}`]: false,
+                            'gameState/lastCaught': { targetId: targetId, time: Date.now() }
+                        });
+                        
+                        showCustomAlert("CAUGHT 'EM!\n\nTHEY DREW 4 CARDS.");
                     }
-                    
-                    update(ref(db, `rooms/${myRoomCode}`), {
-                        'gameState/deck': newDeck,
-                        'gameState/discardPile': newDiscard,
-                        [`gameState/hands/${targetId}`]: targetHand
-                    });
-                    
-                    showCustomAlert("CAUGHT 'EM!\nTHEY DREW 4 CARDS.");
                 } else {
                     showCustomAlert("THEY ARE SAFE!");
                 }
@@ -861,7 +903,7 @@
         // --- GAMEPLAY ACTIONS ---
         function handleCardPlay(card, handIndex) {
             if (isActionLocked) return;
-            isActionLocked = true; // Lock interactions immediately
+            isActionLocked = true; 
 
             if (card.color === 'wild') {
                 pendingWildCardIndex = handIndex;
@@ -873,13 +915,14 @@
 
         document.querySelectorAll('.color-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                playAudio(sfxClick);
                 const chosenColor = e.target.dataset.color;
                 document.getElementById('color-picker-overlay').classList.remove('active');
                 if (pendingWildCardIndex !== null) {
                     executePlay(pendingWildCardIndex, chosenColor);
                     pendingWildCardIndex = null;
                 } else {
-                    isActionLocked = false; // Failsafe
+                    isActionLocked = false; 
                 }
             });
         });
@@ -887,8 +930,15 @@
         function executePlay(handIndex, finalColor) {
             const state = globalRoomData.gameState;
             const myHand = [...state.hands[myPlayerId]];
-            const playedCard = myHand.splice(handIndex, 1)[0];
+            let playedCard = myHand.splice(handIndex, 1)[0];
             
+            // Dynamic Wild Card Image Assignment
+            if (playedCard.color === 'wild') {
+                if (playedCard.value === 'plus4') playedCard.img = `${finalColor}-plus4.png`;
+                if (playedCard.value === '4colors') playedCard.img = `${finalColor}-4colors.png`;
+                playedCard.color = finalColor; 
+            }
+
             let newDeck = [...state.deck];
             let newDiscard = [...state.discardPile, playedCard];
             let newHands = { ...state.hands };
@@ -906,6 +956,13 @@
             let newDirection = state.direction;
             let numPlayers = state.turnOrder.length;
             let newPendingDraw = 0;
+            let nextTurnCount = state.turnCount + 1;
+
+            // Track Grace Period
+            let newReachedOne = { ...(state.reachedOneCardTurn || {}) };
+            if (myHand.length === 1) {
+                newReachedOne[myPlayerId] = nextTurnCount;
+            }
 
             if (playedCard.value === 'reverse') {
                 if (numPlayers === 2) {
@@ -931,10 +988,12 @@
                 'gameState/discardPile': newDiscard,
                 'gameState/hands': newHands,
                 'gameState/turnIndex': nextTurnIndex,
+                'gameState/turnCount': nextTurnCount,
                 'gameState/direction': newDirection,
                 'gameState/currentColor': finalColor,
                 'gameState/pendingDraw': newPendingDraw,
-                'gameState/hasDrawn': false 
+                'gameState/hasDrawn': false,
+                'gameState/reachedOneCardTurn': newReachedOne
             };
 
             update(ref(db, `rooms/${myRoomCode}`), updates);
@@ -943,8 +1002,9 @@
         // --- DRAW BUTTON (Official Rules Logic) ---
         document.getElementById('btn-draw-card').addEventListener('click', function() {
             if (this.disabled || isActionLocked) return;
-            isActionLocked = true; // Lock interactions immediately
+            isActionLocked = true; 
             this.disabled = true;
+            playAudio(sfxClick);
 
             const state = globalRoomData.gameState;
             let newDeck = [...state.deck];
@@ -953,6 +1013,7 @@
             const topCard = newDiscard[newDiscard.length - 1];
 
             const pendingDraw = state.pendingDraw || 0;
+            let nextTurnCount = state.turnCount + 1;
 
             // SCENARIO 1: Forced Penalty Draw (+2 or +4)
             if (pendingDraw > 0) {
@@ -961,12 +1022,16 @@
                     if(newDeck.length > 0) myHand.push(newDeck.pop());
                 }
 
+                let nextTurnIndex = (state.turnIndex + state.direction + state.turnOrder.length) % state.turnOrder.length;
+
                 update(ref(db, `rooms/${myRoomCode}`), {
                     'gameState/deck': newDeck,
                     'gameState/discardPile': newDiscard,
                     [`gameState/hands/${myPlayerId}`]: myHand,
+                    'gameState/turnIndex': nextTurnIndex,
+                    'gameState/turnCount': nextTurnCount,
                     'gameState/pendingDraw': 0,
-                    'gameState/hasDrawn': true,
+                    'gameState/hasDrawn': false,
                     [`gameState/calledUno/${myPlayerId}`]: false 
                 }).then(() => { isActionLocked = false; });
                 return;
@@ -977,6 +1042,7 @@
                 let nextTurnIndex = (state.turnIndex + state.direction + state.turnOrder.length) % state.turnOrder.length;
                 update(ref(db, `rooms/${myRoomCode}`), {
                     'gameState/turnIndex': nextTurnIndex,
+                    'gameState/turnCount': nextTurnCount,
                     'gameState/hasDrawn': false
                 });
                 return;
@@ -991,7 +1057,6 @@
             const hasPlayable = myHand.some(c => c.color === 'wild' || c.color === state.currentColor || c.value === topCard.value);
 
             if (hasPlayable) {
-                // They can play. Leave it on their turn and change button to "END TURN"
                 update(ref(db, `rooms/${myRoomCode}`), {
                     'gameState/deck': newDeck,
                     'gameState/discardPile': newDiscard,
@@ -1000,13 +1065,13 @@
                     [`gameState/calledUno/${myPlayerId}`]: false 
                 });
             } else {
-                // They cannot play. Instantly pass the turn.
                 let nextTurnIndex = (state.turnIndex + state.direction + state.turnOrder.length) % state.turnOrder.length;
                 update(ref(db, `rooms/${myRoomCode}`), {
                     'gameState/deck': newDeck,
                     'gameState/discardPile': newDiscard,
                     [`gameState/hands/${myPlayerId}`]: myHand,
                     'gameState/turnIndex': nextTurnIndex,
+                    'gameState/turnCount': nextTurnCount,
                     'gameState/hasDrawn': false,
                     [`gameState/calledUno/${myPlayerId}`]: false 
                 });
