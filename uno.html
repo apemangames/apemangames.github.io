@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#ed1c24">
     <title>APEMAN UNO</title>
     
     <link rel="icon" type="image/png" href="images/unofavicon.png">
     
     <style>
         :root {
-            --bg-color: #be1c1c; 
+            --bg-color: #ed1c24; 
             --uno-yellow: #f8da28;
             --uno-red: #ff5555;
             --uno-blue: #5555ff;
@@ -25,7 +26,7 @@
             font-family: var(--font-uno);
             display: flex; flex-direction: column; align-items: center; 
             width: 100%; height: 100%; overflow: hidden;
-            background-color: transparent; 
+            background-color: var(--bg-color); /* Fixed white status bar issue */
         }
 
         body::before {
@@ -81,10 +82,13 @@
             overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch;
         }
         
-        .host-fullscreen-view { overflow: hidden; }
+        .host-fullscreen-view { overflow: hidden; padding-top: env(safe-area-inset-top); }
         .view-section.active, .host-fullscreen-view.active { opacity: 1; visibility: visible; pointer-events: auto; transform: scale(1); }
 
-        .player-only-view { padding: 20px;}
+        /* Added dynamic iOS safe-area padding */
+        .player-only-view { 
+            padding: calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom)) 20px;
+        }
 
         /* UI ELEMENTS */
         .btn-primary { 
@@ -119,12 +123,12 @@
         
         .lobby-code-wrapper { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
         .code-row { display: flex; align-items: center; gap: 20px; }
-        .lobby-code-box { font-size: 100px; line-height: 0.8; margin: 0; }
+        .lobby-code-box { font-size: 100px; line-height: 0.8; margin: 0; text-transform: uppercase;}
         .lobby-url { font-family: sans-serif; font-weight: bold; font-size: 22px; color: white; text-shadow: -2px 2px 0px #000; margin: 0; width: 100%; text-align: right;}
         
         /* PLAYER LIST */
         .player-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%; max-width: 1000px;}
-        .player-pill { background: rgba(0,0,0,0.8); border: 3px solid var(--uno-yellow); color: white; font-size: 30px; padding: 10px 25px; border-radius: 40px; box-shadow: -4px 4px 0 black;}
+        .player-pill { background: rgba(0,0,0,0.8); border: 3px solid var(--uno-yellow); color: white; font-size: 30px; padding: 10px 25px; border-radius: 40px; box-shadow: -4px 4px 0 black; text-transform: uppercase;}
         
         /* HOST PLAYING LAYOUT */
         .host-playing-layout { display: flex; flex-direction: column; align-items: center; width: 100%; flex: 1; justify-content: center;}
@@ -166,15 +170,15 @@
 
         /* PLAYER MOBILE UI */
         #view-player-playing { justify-content: space-between; }
-        .player-top-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 15px; border: 2px solid var(--uno-yellow);}
-        .status-msg { font-size: 26px; color: white;}
+        .player-top-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 30px; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 15px; border: 2px solid var(--uno-yellow);}
+        .status-msg { font-size: 26px; color: white; text-transform: uppercase;}
         .top-card-mini { height: 100px; aspect-ratio: 682 / 1052; object-fit: contain; border-radius: 6px; filter: drop-shadow(-2px 4px 4px rgba(0,0,0,0.5));}
 
         /* UNO & CATCH BUTTONS */
-        .player-middle-section { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; width: 100%; gap: 15px; max-width: 400px;}
+        .player-middle-section { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; width: 100%; gap: 25px; max-width: 400px;}
         .action-row { display: flex; gap: 15px; width: 100%; }
-        .btn-uno { flex: 1; background: var(--uno-yellow); font-size: 24px; padding: 10px; border: 3px solid black; border-radius: 15px; box-shadow: -3px 4px 0 black; color: black;}
-        .btn-catch { flex: 1; background: var(--uno-red); color: white; font-size: 24px; padding: 10px; border: 3px solid black; border-radius: 15px; box-shadow: -3px 4px 0 black;}
+        .btn-uno { flex: 1; background: var(--uno-yellow); font-size: 24px; padding: 15px; border: 3px solid black; border-radius: 15px; box-shadow: -3px 4px 0 black; color: black; text-transform: uppercase;}
+        .btn-catch { flex: 1; background: var(--uno-red); color: white; font-size: 24px; padding: 15px; border: 3px solid black; border-radius: 15px; box-shadow: -3px 4px 0 black; text-transform: uppercase;}
 
         /* BIG, BOTTOM-ANCHORED PHYSICS HAND */
         .bottom-hand-wrapper { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: auto; padding-bottom: 10px; }
@@ -211,10 +215,10 @@
         .c-yellow { background-color: var(--uno-yellow); }
 
         .catch-list { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; width: 100%; max-width: 400px;}
-        .catch-btn { background: #333; color: white; border: 3px solid var(--uno-yellow); padding: 15px; font-size: 24px; border-radius: 15px; cursor: pointer;}
+        .catch-btn { background: #333; color: white; border: 3px solid var(--uno-yellow); padding: 15px; font-size: 24px; border-radius: 15px; cursor: pointer; text-transform: uppercase;}
 
         @media (max-width: 768px) {
-            .lobby-top-bar { flex-direction: row; align-items: flex-start; justify-content: space-between; width: 90%; margin-top: 20px;}
+            .lobby-top-bar { flex-direction: row; align-items: flex-start; justify-content: space-between; width: 90%; margin-top: 20px; margin-bottom: 20px;}
             .lobby-logo { font-size: 60px; }
             .lobby-code-wrapper { align-items: flex-end; }
             .lobby-code-box { font-size: 60px; }
@@ -232,7 +236,13 @@
         <section id="view-player-waiting" class="view-section player-only-view">
             <div class="uno-text" style="font-size: 100px; margin-bottom: 20px;">UNO</div>
             <h2 class="uno-text-simple" style="font-size: 40px; color: white; -webkit-text-stroke:0; text-shadow:none; filter:none; letter-spacing: 2px;">HANG TIGHT</h2>
-            <p style="color: white; font-size: 20px; text-align: center;">Waiting for host to deal the cards...</p>
+            <p id="player-waiting-sub" style="color: white; font-size: 20px; text-align: center; text-transform: uppercase;">Waiting for host to deal the cards...</p>
+        </section>
+
+        <section id="view-player-won" class="view-section player-only-view" style="justify-content: center;">
+            <div class="uno-text" style="font-size: 80px; margin-bottom: 20px;">UNO</div>
+            <h2 class="uno-text-simple" style="font-size: 40px; color: white; -webkit-text-stroke:0; text-shadow:none; filter:none; letter-spacing: 2px; text-align: center;">YOU WON,<br>CONGRATS!</h2>
+            <p style="color: var(--uno-yellow); font-size: 20px; text-align: center; margin-top: 20px; text-transform: uppercase;">Spectating remaining match...</p>
         </section>
 
         <section id="view-player-playing" class="view-section player-only-view">
@@ -251,17 +261,11 @@
             </div>
 
             <div class="bottom-hand-wrapper">
-                <div class="uno-text-simple" style="font-size: 30px; margin-bottom: 5px;">YOUR HAND</div>
+                <div class="uno-text-simple" style="font-size: 30px; margin-top: 20px; margin-bottom: 10px;">YOUR HAND</div>
                 <div class="hand-container" id="player-hand-container">
                     </div>
             </div>
             
-        </section>
-
-        <section id="view-player-game-over" class="view-section player-only-view" style="justify-content: center;">
-            <div class="uno-text" style="font-size: 100px; margin-bottom: 20px;">UNO</div>
-            <h2 class="uno-text-simple" style="font-size: 50px; color: white; -webkit-text-stroke:0; text-shadow:none; filter:none; letter-spacing: 2px;">GAME OVER</h2>
-            <p style="color: white; font-size: 20px; text-align: center;">Look at the TV to see who won!</p>
         </section>
 
     </div>
@@ -324,11 +328,12 @@
         </div>
     </div>
 
-    <div id="view-host-game-over" class="host-fullscreen-view" style="justify-content: center; background: rgba(0,0,0,0.9);">
+    <div id="view-host-game-over" class="host-fullscreen-view" style="justify-content: center; background: rgba(0,0,0,0.95); z-index: 800;">
         <div class="uno-text" style="font-size: 150px; margin-bottom: 20px;">UNO!</div>
-        <div class="uno-text-simple" style="font-size: 80px; color: white; -webkit-text-stroke:0; filter:none; text-shadow: none; margin-bottom: 40px; letter-spacing: 2px;" id="winner-display">PLAYER WINS!</div>
+        <div class="uno-text-simple" style="font-size: 60px; color: white; -webkit-text-stroke:0; filter:none; text-shadow: none; margin-bottom: 40px; letter-spacing: 2px;" id="winner-display">PLAYER WINS 1ST PLACE!</div>
         
-        <button class="btn-primary" id="btn-play-again" style="font-size: 35px;">PLAY AGAIN</button>
+        <button class="btn-primary" id="btn-play-interim" style="font-size: 35px; margin-bottom: 20px; display:none;">PLAY FOR 2ND PLACE</button>
+        <button class="btn-primary" id="btn-play-again" style="font-size: 35px; background: white;">END MATCH & PLAY AGAIN</button>
     </div>
 
     <div id="host-notification-overlay" class="modal-overlay" style="background: transparent; pointer-events: none; justify-content: flex-start; padding-top: 150px; z-index: 999;">
@@ -392,8 +397,7 @@
         let prevTopCardId = -1;
         let prevDeckLength = -1;
         
-        let lastUnoTime = 0;
-        let lastCaughtTime = 0;
+        const PLACES = ["1ST", "2ND", "3RD", "4TH", "5TH", "6TH", "7TH", "8TH", "9TH", "10TH"];
 
         // ==========================================
         // CUSTOM ALERTS
@@ -568,7 +572,7 @@
                         const lobbyList = document.getElementById('lobby-player-list');
                         lobbyList.innerHTML = '';
                         onlinePlayerIds.forEach(pId => {
-                            lobbyList.innerHTML += `<div class="player-pill">${players[pId].name}</div>`;
+                            lobbyList.innerHTML += `<div class="player-pill">${players[pId].name.toUpperCase()}</div>`;
                         });
 
                         const startBtn = document.getElementById('btn-host-start');
@@ -595,22 +599,30 @@
                         const currentDeckLength = state.deck ? state.deck.length : 0;
 
                         // Check for UNO Call Visual
-                        if (state.lastUnoCall && state.lastUnoCall.time !== lastUnoTime) {
-                            lastUnoTime = state.lastUnoCall.time;
+                        if (state.lastUnoCall && state.lastUnoCall.time !== window.lastUnoTime) {
+                            window.lastUnoTime = state.lastUnoCall.time;
                             const notif = document.getElementById('host-notification-overlay');
-                            document.getElementById('host-notification-msg').innerText = `${state.lastUnoCall.name} CALLED UNO!`;
+                            document.getElementById('host-notification-msg').innerText = `${state.lastUnoCall.name.toUpperCase()} CALLED UNO!`;
                             notif.classList.add('active');
                             setTimeout(() => notif.classList.remove('active'), 3000);
                         }
 
-                        // Check for Play Animation
+                        // Victim Caught Visual
+                        if (state.lastCaught && state.lastCaught.time !== window.lastCaughtTime) {
+                            window.lastCaughtTime = state.lastCaught.time;
+                            const victimName = players[state.lastCaught.targetId].name.toUpperCase();
+                            const notif = document.getElementById('host-notification-overlay');
+                            document.getElementById('host-notification-msg').innerText = `${victimName} WAS CAUGHT!`;
+                            notif.classList.add('active');
+                            setTimeout(() => notif.classList.remove('active'), 3000);
+                        }
+
                         if (prevTopCardId !== -1 && prevTopCardId !== topCard.id) {
                             triggerPlayAnimation(topCard.img);
                         } else {
                             document.getElementById('host-top-card').src = `UNO Cards/${topCard.img}`;
                         }
 
-                        // Check for Draw Animation
                         if (prevDeckLength !== -1 && currentDeckLength < prevDeckLength) {
                             const drawnCount = prevDeckLength - currentDeckLength;
                             for (let i = 0; i < Math.min(drawnCount, 4); i++) { 
@@ -638,15 +650,34 @@
 
                             trackerContainer.innerHTML += `
                                 <div class="tracker-card ${isActive ? 'active-turn' : ''}">
-                                    <div class="tracker-name">${p.name}</div>
+                                    <div class="tracker-name">${p.name.toUpperCase()}</div>
                                     ${cardsHtml}
                                 </div>
                             `;
                         });
                     }
-                    else if (room.status === 'game_over' && room.gameState) {
-                        const winnerName = players[room.gameState.winnerId].name;
-                        document.getElementById('winner-display').innerText = `${winnerName} WINS!`;
+                    else if ((room.status === 'game_over_interim' || room.status === 'game_over') && room.gameState) {
+                        const state = room.gameState;
+                        const winners = state.winners || [];
+                        const lastWinnerId = state.lastWinner;
+                        const winnerName = players[lastWinnerId].name.toUpperCase();
+                        
+                        const placeIndex = winners.length - 1;
+                        const placeString = PLACES[placeIndex] || `${winners.length}TH`;
+
+                        document.getElementById('winner-display').innerText = `${winnerName} GETS ${placeString} PLACE!`;
+
+                        if (room.status === 'game_over_interim') {
+                            const nextPlaceString = PLACES[winners.length] || "NEXT";
+                            document.getElementById('btn-play-interim').innerText = `PLAY FOR ${nextPlaceString} PLACE`;
+                            document.getElementById('btn-play-interim').style.display = 'inline-block';
+                            document.getElementById('btn-play-again').style.display = 'none'; // Hide reset button during interim
+                        } else {
+                            document.getElementById('winner-display').innerText = `${winnerName} WINS! (MATCH OVER)`;
+                            document.getElementById('btn-play-interim').style.display = 'none';
+                            document.getElementById('btn-play-again').style.display = 'inline-block';
+                        }
+
                         hideAllHostViews(); document.getElementById('view-host-game-over').classList.add('active');
                     }
                 });
@@ -683,10 +714,32 @@
                 pendingDraw: 0,
                 hasDrawn: false,
                 calledUno: {},
-                reachedOneCardTurn: {}
+                reachedOneCardTurn: {},
+                winners: []
             };
 
             update(ref(db, `rooms/${myRoomCode}`), { status: 'playing', gameState: initialState }).then(() => {
+                hideAllHostViews(); document.getElementById('view-host-playing').classList.add('active');
+            });
+        });
+
+        // Interim "Play for X Place" Button
+        document.getElementById('btn-play-interim').addEventListener('click', () => {
+            playAudio(sfxClick);
+            const state = globalRoomData.gameState;
+            
+            // Remove the winner from the turn order
+            let newTurnOrder = state.turnOrder.filter(id => id !== state.lastWinner);
+            
+            // Find the proposed next player's new index
+            let nextIdx = newTurnOrder.indexOf(state.nextPlayerId);
+            if (nextIdx === -1) nextIdx = 0; // Failsafe
+
+            update(ref(db, `rooms/${myRoomCode}`), { 
+                status: 'playing',
+                'gameState/turnOrder': newTurnOrder,
+                'gameState/turnIndex': nextIdx
+            }).then(() => {
                 hideAllHostViews(); document.getElementById('view-host-playing').classList.add('active');
             });
         });
@@ -713,6 +766,7 @@
                 const room = snap.val(); if(!room) return;
                 globalRoomData = room;
                 
+                // Unlock actions whenever the database syncs a new turn state
                 isActionLocked = false; 
 
                 const players = room.players || {};
@@ -722,11 +776,19 @@
 
                 if (room.status === 'waiting') {
                     hideAllPlayerViews(); document.getElementById('view-player-waiting').classList.add('active');
+                    document.getElementById('player-waiting-sub').innerText = "WAITING FOR HOST TO DEAL THE CARDS...";
                 } 
                 else if (room.status === 'playing' && room.gameState) {
+                    const state = room.gameState;
+
+                    // If this specific player has already won, leave them on the "You Won" screen
+                    if (state.winners && state.winners.includes(myPlayerId)) {
+                        hideAllPlayerViews(); document.getElementById('view-player-won').classList.add('active');
+                        return;
+                    }
+
                     hideAllPlayerViews(); document.getElementById('view-player-playing').classList.add('active');
                     
-                    const state = room.gameState;
                     const topCard = state.discardPile[state.discardPile.length - 1];
                     const myTurnIndex = state.turnOrder.indexOf(myPlayerId);
                     const isMyTurn = state.turnIndex === myTurnIndex;
@@ -735,8 +797,8 @@
 
                     // Victim Notification checking
                     if (state.lastCaught && state.lastCaught.targetId === myPlayerId) {
-                        if (state.lastCaught.time !== lastCaughtTime) {
-                            lastCaughtTime = state.lastCaught.time;
+                        if (state.lastCaught.time !== window.lastCaughtTime) {
+                            window.lastCaughtTime = state.lastCaught.time;
                             showCustomAlert("YOU WERE CAUGHT NOT SAYING UNO!\n\n+4 CARDS");
                         }
                     }
@@ -775,7 +837,7 @@
                         }
                     } else {
                         const activePId = state.turnOrder[state.turnIndex];
-                        msgEl.innerText = `WAITING FOR ${players[activePId].name}...`;
+                        msgEl.innerText = `WAITING FOR ${players[activePId].name.toUpperCase()}...`;
                         msgEl.style.color = "white";
                         btnDraw.innerText = "DRAW CARD";
                         btnDraw.style.background = "white";
@@ -806,16 +868,22 @@
                     });
 
                 } 
+                else if (room.status === 'game_over_interim' && room.gameState) {
+                    if (room.gameState.winners && room.gameState.winners.includes(myPlayerId)) {
+                        hideAllPlayerViews(); document.getElementById('view-player-won').classList.add('active');
+                    } else {
+                        hideAllPlayerViews(); document.getElementById('view-player-waiting').classList.add('active');
+                        document.getElementById('player-waiting-sub').innerText = "WAITING FOR NEXT ROUND TO START...";
+                    }
+                }
                 else if (room.status === 'game_over') {
                     hideAllPlayerViews(); document.getElementById('view-player-game-over').classList.add('active');
                 }
             });
         }
 
-        // --- UNO BUTTONS (Fixed DB Updating) ---
+        // --- UNO BUTTONS (Perfected Safe Logic) ---
         document.getElementById('btn-call-uno').addEventListener('click', () => {
-            if (!globalRoomData || !globalRoomData.gameState) return;
-            
             get(child(ref(db), `rooms/${myRoomCode}/gameState`)).then(snap => {
                 const state = snap.val();
                 if (!state) return;
@@ -828,7 +896,6 @@
                 
                 playAudio(sfxClick);
 
-                // Correct object-based Firebase update
                 let updates = {};
                 updates[`gameState/calledUno/${myPlayerId}`] = true;
                 updates['gameState/lastUnoCall'] = { name: myPlayerName, time: Date.now() };
@@ -838,21 +905,23 @@
                     const msgEl = document.getElementById('player-turn-msg');
                     msgEl.innerText = "UNO CALLED!";
                     msgEl.style.color = "var(--uno-green)";
-                }).catch(e => console.error("UNO call failed", e));
+                }).catch(e => console.error(e));
             });
         });
 
         document.getElementById('btn-catch-uno').addEventListener('click', () => {
             playAudio(sfxClick);
             const players = globalRoomData.players;
+            const state = globalRoomData.gameState;
             const catchList = document.getElementById('catch-uno-list');
             catchList.innerHTML = '';
 
             Object.entries(players).forEach(([pId, p]) => {
-                if (pId !== myPlayerId && p.status === 'online') {
+                // Only show active players who are still in the turn order (haven't won yet)
+                if (pId !== myPlayerId && p.status === 'online' && state.turnOrder.includes(pId)) {
                     const btn = document.createElement('button');
                     btn.className = 'catch-btn';
-                    btn.innerText = p.name;
+                    btn.innerText = p.name.toUpperCase();
                     btn.onclick = () => catchPlayer(pId);
                     catchList.appendChild(btn);
                 }
@@ -944,21 +1013,13 @@
             let newHands = { ...state.hands };
             newHands[myPlayerId] = myHand;
 
-            if (myHand.length === 0) {
-                update(ref(db, `rooms/${myRoomCode}`), { 
-                    status: 'game_over', 
-                    'gameState/winnerId': myPlayerId 
-                });
-                return;
-            }
-
             let nextTurnIndex = state.turnIndex;
             let newDirection = state.direction;
             let numPlayers = state.turnOrder.length;
             let newPendingDraw = 0;
             let nextTurnCount = state.turnCount + 1;
 
-            // Track Grace Period
+            // Track Grace Period for UNO Call
             let newReachedOne = { ...(state.reachedOneCardTurn || {}) };
             if (myHand.length === 1) {
                 newReachedOne[myPlayerId] = nextTurnCount;
@@ -975,19 +1036,19 @@
                 nextTurnIndex = (nextTurnIndex + newDirection + numPlayers) % numPlayers;
             }
             else if (playedCard.value === 'plus2') {
-                newPendingDraw = 2;
+                newPendingDraw = 2; // Flat 2 per standard rules
             }
             else if (playedCard.value === 'plus4') {
-                newPendingDraw = 4;
+                newPendingDraw = 4; // Flat 4 per standard rules
             }
 
             nextTurnIndex = (nextTurnIndex + newDirection + numPlayers) % numPlayers;
+            let nextPlayerId = state.turnOrder[nextTurnIndex];
 
             let updates = {
                 'gameState/deck': newDeck,
                 'gameState/discardPile': newDiscard,
                 'gameState/hands': newHands,
-                'gameState/turnIndex': nextTurnIndex,
                 'gameState/turnCount': nextTurnCount,
                 'gameState/direction': newDirection,
                 'gameState/currentColor': finalColor,
@@ -996,10 +1057,31 @@
                 'gameState/reachedOneCardTurn': newReachedOne
             };
 
+            // Multi-Tier Winning Logic
+            if (myHand.length === 0) {
+                let winners = state.winners || [];
+                winners.push(myPlayerId);
+                updates['gameState/winners'] = winners;
+                updates['gameState/lastWinner'] = myPlayerId;
+                updates['gameState/nextPlayerId'] = nextPlayerId; // Save who should go next
+
+                // If only 1 player will be left after we remove the winner, the whole match is over
+                if (state.turnOrder.length <= 2) {
+                    updates['status'] = 'game_over';
+                    updates['gameState/winnerId'] = winners[0]; // Overall 1st place
+                } else {
+                    updates['status'] = 'game_over_interim';
+                }
+                
+                update(ref(db, `rooms/${myRoomCode}`), updates);
+                return;
+            }
+
+            updates['gameState/turnIndex'] = nextTurnIndex;
             update(ref(db, `rooms/${myRoomCode}`), updates);
         }
 
-        // --- DRAW BUTTON (Official Rules Logic) ---
+        // --- DRAW / END TURN BUTTON (Official Rules Logic) ---
         document.getElementById('btn-draw-card').addEventListener('click', function() {
             if (this.disabled || isActionLocked) return;
             isActionLocked = true; 
@@ -1022,22 +1104,18 @@
                     if(newDeck.length > 0) myHand.push(newDeck.pop());
                 }
 
-                let nextTurnIndex = (state.turnIndex + state.direction + state.turnOrder.length) % state.turnOrder.length;
-
                 update(ref(db, `rooms/${myRoomCode}`), {
                     'gameState/deck': newDeck,
                     'gameState/discardPile': newDiscard,
                     [`gameState/hands/${myPlayerId}`]: myHand,
-                    'gameState/turnIndex': nextTurnIndex,
-                    'gameState/turnCount': nextTurnCount,
                     'gameState/pendingDraw': 0,
-                    'gameState/hasDrawn': false,
+                    'gameState/hasDrawn': true, // Let them play a card now!
                     [`gameState/calledUno/${myPlayerId}`]: false 
                 }).then(() => { isActionLocked = false; });
                 return;
             }
 
-            // SCENARIO 2: Player has already drawn and decides to pass
+            // SCENARIO 2: Player has already drawn and decides to pass (End Turn)
             if (state.hasDrawn) {
                 let nextTurnIndex = (state.turnIndex + state.direction + state.turnOrder.length) % state.turnOrder.length;
                 update(ref(db, `rooms/${myRoomCode}`), {
@@ -1048,7 +1126,7 @@
                 return;
             }
 
-            // SCENARIO 3: Player draws one card on their turn
+            // SCENARIO 3: Player draws one card voluntarily on their turn
             if(newDeck.length === 0) recycleDiscard(newDeck, newDiscard);
             if(newDeck.length > 0) {
                 myHand.push(newDeck.pop());
@@ -1061,7 +1139,7 @@
                     'gameState/deck': newDeck,
                     'gameState/discardPile': newDiscard,
                     [`gameState/hands/${myPlayerId}`]: myHand,
-                    'gameState/hasDrawn': true,
+                    'gameState/hasDrawn': true, // Change button to End Turn
                     [`gameState/calledUno/${myPlayerId}`]: false 
                 });
             } else {
@@ -1104,7 +1182,7 @@
                     let existingPlayerId = null; let canJoin = true;
 
                     for (const [pId, p] of Object.entries(players)) {
-                        if (p.name.toLowerCase() === savedName.toLowerCase()) {
+                        if (p.name.toUpperCase() === savedName.toUpperCase()) {
                             if (p.status === 'online') { canJoin = false; break; } 
                             else { existingPlayerId = pId; break; }
                         }
@@ -1126,7 +1204,7 @@
                         myPlayerId = newPlayerRef.key;
                         const myStatusRef = ref(db, `rooms/${savedCode}/players/${myPlayerId}/status`);
                         onDisconnect(myStatusRef).set('offline').then(() => {
-                            set(newPlayerRef, { name: savedName, status: 'online' }).then(() => { proceedToGame(savedCode); });
+                            set(newPlayerRef, { name: myPlayerName, status: 'online' }).then(() => { proceedToGame(savedCode); });
                         });
                     }
                 }).catch((error) => { console.error(error); alert("Connection Error"); window.location.href='index.html'; });
